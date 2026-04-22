@@ -7,7 +7,8 @@ Este documento resume la funcionalidad principal, correcciones y mejoras de dise
 El **Dashboard Traffic UPC** es una herramienta analítica web autónoma (HTML, CSS, JS) diseñada para visualizar y analizar el rendimiento diario de la captación de leads en el CRM institucional. Su objetivo principal es permitir a los líderes y analistas de marketing tomar decisiones estratégicas basadas en datos en tiempo real.
 
 **Principales Casos de Uso:**
-- **Monitoreo de Volumen:** Controlar cuántos leads totales ingresan y qué porcentaje corresponde a tráfico orgánico/directo (*Inbound*) versus esfuerzos de contacto saliente (*Outbound*).
+
+- **Monitoreo de Volumen:** Controlar cuántos leads totales ingresan y qué porcentaje corresponde a tráfico orgánico/directo (_Inbound_) versus esfuerzos de contacto saliente (_Outbound_).
 - **Análisis de Rendimiento por Canal y Campaña:** Identificar qué campañas de marketing o canales (WhatsApp, Email, etc.) están generando el mayor volumen de registros.
 - **Identificación de Patrones (Estacionalidad semanal):** Conocer qué días de la semana atraen más tráfico cruzado con la dirección (Inbound/Outbound) a través de un mapa de calor/tabla dinámica, permitiendo optimizar el presupuesto publicitario.
 - **Insights Automatizados:** Generar frases descriptivas dinámicas que resumen el comportamiento de la data filtrada al instante.
@@ -29,11 +30,14 @@ El **Dashboard Traffic UPC** es una herramienta analítica web autónoma (HTML, 
 
 - **Manejo Dinámico de Codificación (Encoding):**
   - Se reemplazó el lector tradicional de texto por `FileReader.readAsArrayBuffer()`.
-  - Se implementó un sistema inteligente con `TextDecoder` que intenta leer el archivo primero en `UTF-8`. Si detecta caracteres corruptos, hace un *fallback* automático a `windows-1252` (ANSI).
-  
+  - Se implementó un sistema inteligente con `TextDecoder` que intenta leer el archivo primero en `UTF-8`. Si detecta caracteres corruptos, hace un _fallback_ automático a `windows-1252` (ANSI).
 - **Normalización Robusta de Columnas (PapaParse):**
-  - Para evitar que variaciones en los nombres de las columnas rompan el dashboard, se añadió un proceso de limpieza. 
+  - Para evitar que variaciones en los nombres de las columnas rompan el dashboard, se añadió un proceso de limpieza.
   - Se eliminan espacios extra, se quitan tildes usando `.normalize("NFD")` y se pasa todo a minúsculas antes de mapear.
+
+- **Optimización de Rendimiento (Renderizado de Filtros):**
+  - Se solucionó un problema crítico que congelaba la página web al cargar archivos que contenían miles de opciones únicas (como fechas u horas).
+  - Se cambió la lógica de inyección HTML de los filtros desplegables. En lugar de forzar al navegador a redibujar el elemento múltiples veces en un bucle (`innerHTML +=`), ahora el código concatena el texto en memoria y lo inyecta una sola vez. Esto asegura que la página ya no se quede en blanco, acelerando los tiempos de carga masiva.
 
 ## 3. Nuevas Funcionalidades (Filtros Avanzados)
 
@@ -42,9 +46,9 @@ Se ampliaron las capacidades de filtrado interactivo. Ahora el usuario puede seg
 - Campaña
 - Canal
 - Segmento
-- **Fecha** 
-- **Semana** 
-- **Dirección** 
+- **Fecha**
+- **Semana**
+- **Dirección**
 
 > [!NOTE]
 > **Filtros en Cascada (Dinámicos)**
@@ -64,6 +68,8 @@ Todos los gráficos, tarjetas (KPIs) y la tabla cruzada responden inmediatamente
 - **Gráficos (Chart.js):**
   - Se eliminó el "ruido visual" quitando las líneas de cuadrícula (grid) de los fondos.
   - Se afinó la paleta de colores para usar el rojo de la marca (UPC) y grises sofisticados.
+- **Feedback Visual (Loader Animado):**
+  - Se agregó una pantalla de carga superpuesta (overlay con un spinner animado en CSS) que informa al usuario mientras se procesan los datos del archivo CSV o JSON. Esto mejora significativamente la experiencia del usuario, evitando clics accidentales o confusión durante el tiempo de procesamiento.
 
 ## 5. Lógica de Cálculo y Fórmulas del Dashboard
 
@@ -72,5 +78,13 @@ Todos los gráficos, tarjetas (KPIs) y la tabla cruzada responden inmediatamente
 - **Día de mayor rendimiento (Mejor Día):** Moda estadística por iteración cruzada.
 - **Tabla Dinámica (Pivot Table):** Intersección de Dirección vs Día de la semana contando entidades únicas.
 
+## 6. Capacidades y Límites de Carga
+
+Dado que el dashboard procesa toda la información de manera local en el navegador del usuario (Client-Side) a través de JavaScript, no existe un límite preestablecido por un servidor. La capacidad de procesamiento depende directamente de la memoria RAM y el procesador de la computadora:
+
+- **Rendimiento Óptimo (Recomendado):** Para una carga y aplicación de filtros fluida e instantánea, se sugiere utilizar archivos de hasta **100,000 filas** (aprox. 15 MB).
+- **Límite Máximo Práctico:** El sistema puede procesar archivos de hasta **500,000 a 1,000,000 de filas** (aprox. 100 MB a 150 MB). Con este volumen de datos, el navegador puede experimentar ligeros congelamientos temporales mientras se procesa la información en la memoria. Superar este límite podría ocasionar que la pestaña colapse por falta de memoria.
+
 ---
+
 **Estado Actual:** Proyecto estabilizado, tolerante a errores de exportación, interactivo y con una presentación ejecutiva óptima, integrando analítica completa de campañas y canales.
