@@ -358,11 +358,14 @@
             const fillSelect = (id, options, currentVal) => {
                 const sel = document.getElementById(id);
                 const firstText = sel.options.length > 0 ? sel.options[0].text : 'Todos';
-                sel.innerHTML = `<option value="ALL">${firstText}</option>`;
+                let html = `<option value="ALL">${firstText}</option>`;
                 options.forEach(opt => {
+                    // Limpiamos comillas dobles para evitar que rompan el HTML
+                    const safeOpt = String(opt).replace(/"/g, '&quot;');
                     const selected = opt == currentVal ? 'selected' : '';
-                    sel.innerHTML += `<option value="${opt}" ${selected}>${opt}</option>`;
+                    html += `<option value="${safeOpt}" ${selected}>${opt}</option>`;
                 });
+                sel.innerHTML = html;
             };
 
             const getOptions = (filterKey, skipValId) => {
