@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Traffic UPC</title>
+    <link rel="icon" type="image/x-icon" href="icon-upc.ico">
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PapaParse (CDN) for CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #111827;
+        }
+
+        .upc-red {
+            color: #D50000;
+        }
+
+        .bg-upc-red {
+            background-color: #D50000;
+        }
+
+        .border-upc-red {
+            border-color: #D50000;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+            border: 1px solid #e5e7eb;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        upc: { red: '#D50000', dark: '#1F2937', gray: '#6B7280', light: '#F9FAFB' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="p-6">
+    <!-- Header -->
+    <header
+        class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 border-b border-gray-200 pb-6">
+        <div class="mb-4 md:mb-0 flex items-center">
+            <img src="upc.png" alt="Logo UPC" width="" class="h-12.5 w-auto mr-4 object-contain">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Dashboard Analítico de Leads</h1>
+                <p class="text-gray-500 mt-1 font-medium">Monitor de Captación de Leads - CRM ✅</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <label
+                class="bg-red-600 border border-gray-300 text-white px-4 py-2 rounded-lg shadow-sm cursor-pointer hover:bg-gray-50 hover:text-gray-900 font-medium transition text-sm">
+                Cargar CSV
+                <input type="file" id="dataFile" class="hidden" accept=".csv,.json">
+            </label>
+            <button onclick="loadSampleData()"
+                class="bg-white border border-gray-300 text-red-600 px-4 py-2 rounded-lg shadow-sm hover:bg-red-700 font-medium transition text-sm">
+                Datos de Prueba</button>
+        </div>
+    </header>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        <div class="card flex flex-col justify-center">
+            <h3 class="text-gray-400 text-xs font-semibold uppercase tracking-wider">Total de Leads</h3>
+            <p id="kpiTotal" class="text-4xl font-bold text-gray-900 mt-2">0</p>
+        </div>
+        <div class="card flex flex-col justify-center">
+            <h3 class="text-gray-400 text-xs font-semibold uppercase tracking-wider">% Inbound</h3>
+            <p id="kpiInbound" class="text-4xl font-bold text-gray-900 mt-2">0%</p>
+        </div>
+        <div class="card flex flex-col justify-center">
+            <h3 class="text-gray-400 text-xs font-semibold uppercase tracking-wider">% Outbound</h3>
+            <p id="kpiOutbound" class="text-4xl font-bold text-gray-900 mt-2">0%</p>
+        </div>
+        <div class="card flex flex-col justify-center">
+            <h3 class="text-gray-400 text-xs font-semibold uppercase tracking-wider">Mejor Día</h3>
+            <p id="kpiBestDay" class="text-4xl font-bold text-gray-900 mt-2">-</p>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-10 flex flex-wrap gap-5 items-end">
+        <div class="flex-1 min-w-[150px]">
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Campaña</label>
+            <select id="filterCampaign"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-red-100 focus:border-red-500 focus:outline-none transition text-sm"
+                onchange="applyFilters()">
+                <option value="ALL">Todas</option>
+            </select>
+        </div>
+        <div class="flex-1 min-w-[150px]">
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Canal</label>
+            <select id="filterChannel"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-red-100 focus:border-red-500 focus:outline-none transition text-sm"
+                onchange="applyFilters()">
+                <option value="ALL">Todos</option>
+            </select>
+        </div>
+        <div class="flex-1 min-w-[150px]">
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Segmento</label>
+            <select id="filterSegment"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-red-100 focus:border-red-500 focus:outline-none transition text-sm"
+                onchange="applyFilters()">
+                <option value="ALL">Todos</option>
+            </select>
+        </div>
+        <div class="flex-1 min-w-[150px]">
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Fecha</label>
+            <select id="filterDate"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-red-100 focus:border-red-500 focus:outline-none transition text-sm"
+                onchange="applyFilters()">
+                <option value="ALL">Todas</option>
+            </select>
+        </div>
+        <div class="flex-1 min-w-[150px]">
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Semana</label>
+            <select id="filterWeek"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-red-100 focus:border-red-500 focus:outline-none transition text-sm"
+                onchange="applyFilters()">
+                <option value="ALL">Todas</option>
+            </select>
+        </div>
+        <div class="flex-1 min-w-[150px]">
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Dirección</label>
+            <select id="filterDirection"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-red-100 focus:border-red-500 focus:outline-none transition text-sm"
+                onchange="applyFilters()">
+                <option value="ALL">Todas</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Gráficos -->
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Tendencia de Leads por Fecha</h2>
+            <canvas id="lineChart" height="200"></canvas>
+        </div>
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Leads por Día de la Semana</h2>
+            <canvas id="barChart" height="200"></canvas>
+        </div>
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Distribución Inbound vs Outbound</h2>
+            <div class="w-2/3 mx-auto">
+                <canvas id="doughnutChart" height="200"></canvas>
+            </div>
+        </div>
+        <div class="card flex flex-col justify-between">
+            <div>
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Comparativa por Canal</h2>
+                <canvas id="channelChart" height="200"></canvas>
+            </div>
+        </div>
+        <div class="card flex flex-col justify-between">
+            <div>
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Top Campañas</h2>
+                <div class="w-3/4 mx-auto">
+                    <canvas id="topCampaignsChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="card bg-red-50/50 border-transparent shadow-none">
+            <h2 class="text-lg font-semibold mb-6 text-red-800 flex items-center tracking-tight">
+                <span class="mr-2">💡</span> Insights Estratégicos
+            </h2>
+            <ul id="insightsList" class="space-y-4 text-red-900 text-sm leading-relaxed">
+                <!-- Dinámico -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tabla Dinámica y Insights -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div class="card lg:col-span-4 overflow-x-auto">
+            <h2 class="text-lg font-semibold mb-6 text-gray-900 tracking-tight">Dirección vs Día de la Semana (Leads
+                Únicos)</h2>
+            <div class="rounded-lg border border-gray-200 overflow-hidden">
+                <table class="min-w-full text-sm text-left text-gray-600" id="pivotTable">
+                    <thead class="bg-gray-50 text-gray-500 uppercase text-xs tracking-wider border-b border-gray-200">
+                        <tr>
+                            <th class="px-4 py-3 font-medium">Dirección</th>
+                            <th class="px-4 py-3 font-medium">Lunes</th>
+                            <th class="px-4 py-3 font-medium">Martes</th>
+                            <th class="px-4 py-3 font-medium">Miércoles</th>
+                            <th class="px-4 py-3 font-medium">Jueves</th>
+                            <th class="px-4 py-3 font-medium">Viernes</th>
+                            <th class="px-4 py-3 font-medium">Sábado</th>
+                            <th class="px-4 py-3 font-medium">Domingo</th>
+                            <th class="px-4 py-3 font-medium text-red-600">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pivotBody" class="divide-y divide-gray-100">
+                        <!-- Dinámico -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let rawData = [];
+        let filteredData = [];
+        let charts = {};
+
+        const daysOrder = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+
+        // Muestra de datos para testeo rápido
+        function generateSampleData() {
+            const sample = [];
+            const directions = ['Inbound', 'Outbound'];
+            const channels = ['WhatsApp', 'Email', 'SMS', 'Facebook'];
+            const segments = ['B2B', 'B2C', 'Corporativo'];
+            const campaigns = ['Campaña Verano', 'Black Friday', 'Cyber Days', 'Vuelta a Clases'];
+
+            for (let i = 0; i < 500; i++) {
+                const date = new Date(2026, 2, Math.floor(Math.random() * 30) + 1); // Marzo 2026
+                sample.push({
+                    "Dirección": Math.random() > 0.3 ? 'Inbound' : 'Outbound',
+                    "Canal": channels[Math.floor(Math.random() * channels.length)],
+                    "Segmento": segments[Math.floor(Math.random() * segments.length)],
+                    "Fecha de creación": date.toISOString().split('T')[0],
+                    "Día de la semana": daysOrder[date.getDay() === 0 ? 6 : date.getDay() - 1],
+                    "Número de semana": Math.ceil(date.getDate() / 7),
+                    "Cod Persona": "P" + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
+                    "Campaña de referencia": campaigns[Math.floor(Math.random() * campaigns.length)]
+                });
+            }
+            return sample;
+        }
+
+        /**
+         * Carga los datos de prueba generados aleatoriamente en el dashboard.
+         * Utilizado para demostración sin necesidad de subir un archivo CSV/JSON.
+         */
+        function loadSampleData() {
+            rawData = generateSampleData();
+            initDashboard();
+        }
+
+        /**
+         * Event Listener para el input de tipo archivo.
+         * Lee el archivo CSV o JSON subido por el usuario.
+         * Para archivos CSV, maneja problemas de encoding (ANSI vs UTF-8) 
+         * y normaliza los nombres de las columnas para evitar errores de mapeo en Excel.
+         */
+        document.getElementById('dataFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const buffer = event.target.result;
+                let content = "";
+
+                if (file.name.endsWith('.json')) {
+                    content = new TextDecoder("utf-8").decode(buffer);
+                    try {
+                        rawData = JSON.parse(content);
+                        initDashboard();
+                    } catch (err) {
+                        alert("Error leyendo JSON");
+                    }
+                } else if (file.name.endsWith('.csv')) {
+                    // 1. Intentar decodificar como UTF-8
+                    let utf8Decoder = new TextDecoder("utf-8");
+                    content = utf8Decoder.decode(buffer);
+
+                    // 2. Si el texto resultante tiene el carácter de reemplazo '' (\uFFFD),
+                    // significa que no era UTF-8 puro, sino probablemente ANSI (Excel Windows).
+                    if (content.includes('\uFFFD')) {
+                        let ansiDecoder = new TextDecoder("windows-1252");
+                        content = ansiDecoder.decode(buffer);
+                    }
+
+                    Papa.parse(content, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function (results) {
+                            // Normalización robusta de columnas y datos para evitar errores de Excel/CSV
+                            rawData = results.data.map(row => {
+                                const newRow = {};
+                                for (let key in row) {
+                                    if (row.hasOwnProperty(key)) {
+                                        // Limpiar la clave (quitar BOM, espacios extra, tildes y pasar a minúsculas)
+                                        const cleanKey = key.replace(/^\uFEFF/, '').trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                        const val = row[key] ? row[key].toString().trim() : "";
+
+                                        if (cleanKey === 'direccion') {
+                                            newRow['Dirección'] = val.toLowerCase().includes('in') ? 'Inbound' : (val.toLowerCase().includes('out') ? 'Outbound' : val);
+                                        }
+                                        else if (cleanKey === 'canal') newRow['Canal'] = val;
+                                        else if (cleanKey === 'segmento') newRow['Segmento'] = val;
+                                        else if (cleanKey === 'fecha de creacion' || cleanKey === 'fecha creacion') newRow['Fecha de creación'] = val;
+                                        else if (cleanKey === 'dia de la semana' || cleanKey === 'dia semana') {
+                                            const d = val.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                            const mapDays = { 'lunes': 'lunes', 'martes': 'martes', 'miercoles': 'miércoles', 'jueves': 'jueves', 'viernes': 'viernes', 'sabado': 'sábado', 'domingo': 'domingo' };
+                                            newRow['Día de la semana'] = mapDays[d] || val;
+                                        }
+                                        else if (cleanKey === 'numero de semana' || cleanKey === 'semana') newRow['Número de semana'] = val;
+                                        else if (cleanKey === 'cod persona' || cleanKey === 'codigo persona' || cleanKey === 'id persona') newRow['Cod Persona'] = val;
+                                        else if (cleanKey === 'codigo de campana' || cleanKey === 'codigo campana' || cleanKey === 'campana' || cleanKey === 'campana de referencia') newRow['Campaña de referencia'] = val;
+                                        else newRow[key] = val;
+                                    }
+                                }
+                                return newRow;
+                            });
+                            initDashboard();
+                        }
+                    });
+                }
+            };
+            // Usar readAsArrayBuffer en lugar de readAsText para controlar el encoding
+            reader.readAsArrayBuffer(file);
+        });
+
+        /**
+         * Inicializa el estado del dashboard:
+         * Aplica los filtros iniciales (todos) y renderiza la interfaz.
+         */
+        function initDashboard() {
+            applyFilters();
+        }
+
+        /**
+         * Actualiza dinámicamente las opciones de los selectores (Filtros en cascada).
+         * Calcula las opciones disponibles para cada filtro basándose en la selección actual
+         * de los DEMÁS filtros, permitiendo que las listas se reduzcan lógicamente sin crear bloqueos.
+         */
+        function updateFilterOptions(camp, chan, seg, dateVal, weekVal, dirVal) {
+            const fillSelect = (id, options, currentVal) => {
+                const sel = document.getElementById(id);
+                const firstText = sel.options.length > 0 ? sel.options[0].text : 'Todos';
+                sel.innerHTML = `<option value="ALL">${firstText}</option>`;
+                options.forEach(opt => {
+                    const selected = opt == currentVal ? 'selected' : '';
+                    sel.innerHTML += `<option value="${opt}" ${selected}>${opt}</option>`;
+                });
+            };
+
+            const getOptions = (filterKey, skipValId) => {
+                const subset = rawData.filter(d => {
+                    return (skipValId === 'filterCampaign' || camp === 'ALL' || d['Campaña de referencia'] == camp) &&
+                        (skipValId === 'filterChannel' || chan === 'ALL' || d['Canal'] == chan) &&
+                        (skipValId === 'filterSegment' || seg === 'ALL' || d['Segmento'] == seg) &&
+                        (skipValId === 'filterDate' || dateVal === 'ALL' || d['Fecha de creación'] == dateVal) &&
+                        (skipValId === 'filterWeek' || weekVal === 'ALL' || d['Número de semana'] == weekVal) &&
+                        (skipValId === 'filterDirection' || dirVal === 'ALL' || d['Dirección'] == dirVal);
+                });
+                let opts = [...new Set(subset.map(d => d[filterKey]))].filter(Boolean);
+                if (filterKey === 'Número de semana') opts.sort((a, b) => a - b);
+                else opts.sort();
+                return opts;
+            };
+
+            fillSelect('filterCampaign', getOptions('Campaña de referencia', 'filterCampaign'), camp);
+            fillSelect('filterChannel', getOptions('Canal', 'filterChannel'), chan);
+            fillSelect('filterSegment', getOptions('Segmento', 'filterSegment'), seg);
+            fillSelect('filterDate', getOptions('Fecha de creación', 'filterDate'), dateVal);
+            fillSelect('filterWeek', getOptions('Número de semana', 'filterWeek'), weekVal);
+            fillSelect('filterDirection', getOptions('Dirección', 'filterDirection'), dirVal);
+        }
+
+        /**
+         * Aplica todos los filtros seleccionados por el usuario al dataset original (rawData).
+         * Guarda el resultado en `filteredData` y desencadena la actualización visual de los gráficos.
+         */
+        function applyFilters() {
+            const camp = document.getElementById('filterCampaign').value;
+            const chan = document.getElementById('filterChannel').value;
+            const seg = document.getElementById('filterSegment').value;
+            const dateVal = document.getElementById('filterDate').value;
+            const weekVal = document.getElementById('filterWeek').value;
+            const dirVal = document.getElementById('filterDirection').value;
+
+            filteredData = rawData.filter(d => {
+                return (camp === 'ALL' || d['Campaña de referencia'] == camp) &&
+                    (chan === 'ALL' || d['Canal'] == chan) &&
+                    (seg === 'ALL' || d['Segmento'] == seg) &&
+                    (dateVal === 'ALL' || d['Fecha de creación'] == dateVal) &&
+                    (weekVal === 'ALL' || d['Número de semana'] == weekVal) &&
+                    (dirVal === 'ALL' || d['Dirección'] == dirVal);
+            });
+
+            updateFilterOptions(camp, chan, seg, dateVal, weekVal, dirVal);
+            updateDashboard();
+        }
+
+        /**
+         * Función orquestadora que llama a las 4 funciones principales
+         * de renderizado del dashboard basadas en los datos ya filtrados.
+         */
+        function updateDashboard() {
+            updateKPIs();
+            renderCharts();
+            renderPivotTable();
+            generateInsights();
+        }
+
+        /**
+         * Calcula y actualiza las tarjetas numéricas (KPIs) de la parte superior.
+         * Incluye validaciones para prevenir divisiones por cero.
+         */
+        function updateKPIs() {
+            const total = new Set(filteredData.map(d => d['Cod Persona'])).size;
+            const inbound = filteredData.filter(d => d['Dirección'] === 'Inbound').length;
+            const outbound = filteredData.filter(d => d['Dirección'] === 'Outbound').length;
+            const totalRow = filteredData.length || 1; // prevent div by zero
+
+            document.getElementById('kpiTotal').innerText = total;
+            document.getElementById('kpiInbound').innerText = Math.round((inbound / totalRow) * 100) + '%';
+            document.getElementById('kpiOutbound').innerText = Math.round((outbound / totalRow) * 100) + '%';
+
+            // Día con mayor captación
+            const dayCounts = {};
+            filteredData.forEach(d => {
+                if (d['Día de la semana']) {
+                    dayCounts[d['Día de la semana']] = (dayCounts[d['Día de la semana']] || 0) + 1;
+                }
+            });
+            let bestDay = '-';
+            let maxCount = 0;
+            for (let d in dayCounts) {
+                if (dayCounts[d] > maxCount) { maxCount = dayCounts[d]; bestDay = d; }
+            }
+            document.getElementById('kpiBestDay').innerText = bestDay ? bestDay.charAt(0).toUpperCase() + bestDay.slice(1) : '-';
+        }
+
+        /**
+         * Renderiza los 4 gráficos interactivos utilizando Chart.js.
+         * Destruye las instancias previas de gráficos antes de dibujar los nuevos
+         * para evitar sobreposiciones en el canvas HTML al cambiar de filtros.
+         */
+        function renderCharts() {
+            // Configuración global Chart.js Minimalista
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = "#9CA3AF";
+            Chart.defaults.scale.grid.color = "rgba(0,0,0,0.04)";
+            Chart.defaults.plugins.tooltip.backgroundColor = "rgba(17, 24, 39, 0.9)";
+            Chart.defaults.plugins.tooltip.padding = 10;
+            Chart.defaults.plugins.tooltip.cornerRadius = 8;
+
+            // Colors: UPC Red, Dark Gray, Light Gray, Black
+            const colorPalette = ['#D50000', '#1F2937', '#9CA3AF', '#4B5563', '#F87171'];
+
+            const destroyChart = (id) => { if (charts[id]) charts[id].destroy(); }
+
+            // 1. Line Chart: Tendencia por fecha
+            const dates = {};
+            filteredData.forEach(d => {
+                if (d['Fecha de creación']) {
+                    dates[d['Fecha de creación']] = (dates[d['Fecha de creación']] || 0) + 1;
+                }
+            });
+            const sortedDates = Object.keys(dates).sort();
+            destroyChart('lineChart');
+            charts['lineChart'] = new Chart(document.getElementById('lineChart'), {
+                type: 'line',
+                data: {
+                    labels: sortedDates,
+                    datasets: [{
+                        label: 'Leads',
+                        data: sortedDates.map(date => dates[date]),
+                        borderColor: '#D50000',
+                        backgroundColor: 'rgba(213, 0, 0, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } } } }
+            });
+
+            // 2. Bar Chart: Por día de la semana
+            const dayCounts = { 'lunes': 0, 'martes': 0, 'miércoles': 0, 'jueves': 0, 'viernes': 0, 'sábado': 0, 'domingo': 0 };
+            filteredData.forEach(d => {
+                if (d['Día de la semana'] && dayCounts[d['Día de la semana'].toLowerCase()] !== undefined) {
+                    dayCounts[d['Día de la semana'].toLowerCase()]++;
+                }
+            });
+            destroyChart('barChart');
+            charts['barChart'] = new Chart(document.getElementById('barChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+                    datasets: [{
+                        label: 'Leads',
+                        data: Object.values(dayCounts),
+                        backgroundColor: '#1F2937'
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false } } } }
+            });
+
+            // 3. Doughnut Chart: Inbound vs Outbound
+            const inbound = filteredData.filter(d => d['Dirección'] === 'Inbound').length;
+            const outbound = filteredData.filter(d => d['Dirección'] === 'Outbound').length;
+            destroyChart('doughnutChart');
+            charts['doughnutChart'] = new Chart(document.getElementById('doughnutChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Inbound', 'Outbound'],
+                    datasets: [{
+                        data: [inbound, outbound],
+                        backgroundColor: ['#D50000', '#4B5563']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            // 4. Bar Chart: Top Campañas
+            const campCounts = {};
+            filteredData.forEach(d => {
+                if (d['Campaña de referencia']) {
+                    campCounts[d['Campaña de referencia']] = (campCounts[d['Campaña de referencia']] || 0) + 1;
+                }
+            });
+            const sortedCamps = Object.keys(campCounts).sort((a, b) => campCounts[b] - campCounts[a]).slice(0, 5);
+
+            destroyChart('topCampaignsChart');
+            charts['topCampaignsChart'] = new Chart(document.getElementById('topCampaignsChart'), {
+                type: 'pie',
+                data: {
+                    labels: sortedCamps,
+                    datasets: [{
+                        label: 'Leads',
+                        data: sortedCamps.map(c => campCounts[c]),
+                        backgroundColor: ['#D50000', '#1F2937', '#9CA3AF', '#4B5563', '#F87171']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'right' } } }
+            });
+
+            // 5. Bar Chart: Comparativa por Canal
+            const channelCounts = {};
+            filteredData.forEach(d => {
+                if (d['Canal']) {
+                    channelCounts[d['Canal']] = (channelCounts[d['Canal']] || 0) + 1;
+                }
+            });
+            const sortedChannels = Object.keys(channelCounts).sort((a, b) => channelCounts[b] - channelCounts[a]);
+
+            destroyChart('channelChart');
+            charts['channelChart'] = new Chart(document.getElementById('channelChart'), {
+                type: 'bar',
+                data: {
+                    labels: sortedChannels,
+                    datasets: [{
+                        label: 'Leads',
+                        data: sortedChannels.map(c => channelCounts[c]),
+                        backgroundColor: '#4B5563'
+                    }]
+                },
+                options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { display: false } } } }
+            });
+        }
+
+        /**
+         * Genera dinámicamente la tabla cruzada (Dirección vs Día de la Semana).
+         * Calcula conteos únicos por "Cod Persona" en lugar de contar filas,
+         * y autogenera totales por filas y por columnas.
+         */
+        function renderPivotTable() {
+            // Filas: Dirección, Cols: Día semana, Val: Count unique Cod Persona
+            const pivot = { 'Inbound': {}, 'Outbound': {} };
+            daysOrder.forEach(d => { pivot['Inbound'][d] = new Set(); pivot['Outbound'][d] = new Set(); });
+
+            filteredData.forEach(d => {
+                const dir = d['Dirección'];
+                const day = d['Día de la semana'] ? d['Día de la semana'].toLowerCase() : null;
+                const cod = d['Cod Persona'];
+                if ((dir === 'Inbound' || dir === 'Outbound') && day && pivot[dir][day]) {
+                    pivot[dir][day].add(cod);
+                }
+            });
+
+            let tbody = '';
+            let colTotals = { 'lunes': 0, 'martes': 0, 'miércoles': 0, 'jueves': 0, 'viernes': 0, 'sábado': 0, 'domingo': 0 };
+            let grandTotal = 0;
+
+            ['Inbound', 'Outbound'].forEach(dir => {
+                let rowTotal = 0;
+                let tr = `<tr class="hover:bg-gray-50 transition"><td class="px-4 py-3 font-medium text-gray-900">${dir}</td>`;
+                daysOrder.forEach(day => {
+                    const count = pivot[dir][day].size;
+                    rowTotal += count;
+                    colTotals[day] += count;
+                    tr += `<td class="px-4 py-3">${count}</td>`;
+                });
+                grandTotal += rowTotal;
+                tr += `<td class="px-4 py-3 font-semibold text-red-700 bg-red-50/30">${rowTotal}</td></tr>`;
+                tbody += tr;
+            });
+
+            // Total Row
+            let tfoot = `<tr class="bg-gray-50 border-t border-gray-200 font-semibold"><td class="px-4 py-3 text-gray-900">TOTAL GENERAL</td>`;
+            daysOrder.forEach(day => { tfoot += `<td class="px-4 py-3 text-gray-800">${colTotals[day]}</td>`; });
+            tfoot += `<td class="px-4 py-3 text-red-700">${grandTotal}</td></tr>`;
+
+            document.getElementById('pivotBody').innerHTML = tbody + tfoot;
+        }
+
+        /**
+         * Analiza los datos actualmente filtrados y genera frases dinámicas (Insights)
+         * resaltando tendencias de negocio como: mejor día, mejor campaña y distribución de tráfico.
+         */
+        function generateInsights() {
+            const list = document.getElementById('insightsList');
+            if (filteredData.length === 0) { list.innerHTML = "<li>No hay datos suficientes para generar insights.</li>"; return; }
+
+            const inbound = filteredData.filter(d => d['Dirección'] === 'Inbound').length;
+            const outbound = filteredData.length - inbound;
+            const trafficInsight = inbound > outbound ?
+                `El tráfico <b>Inbound</b> domina la captación representando un ${(inbound / filteredData.length * 100).toFixed(1)}%.` :
+                `El esfuerzo <b>Outbound</b> está generando la mayoría de los leads (${(outbound / filteredData.length * 100).toFixed(1)}%).`;
+
+            const dayCounts = {};
+            filteredData.forEach(d => {
+                if (d['Día de la semana']) {
+                    dayCounts[d['Día de la semana']] = (dayCounts[d['Día de la semana']] || 0) + 1;
+                }
+            });
+            const bestDay = Object.keys(dayCounts).length > 0 ? Object.keys(dayCounts).reduce((a, b) => dayCounts[a] > dayCounts[b] ? a : b) : '-';
+            const dayInsight = `El día de mayor rendimiento histórico es el <b>${bestDay}</b>, sugiriendo concentrar campañas y presupuesto en este día.`;
+
+            const campCounts = {};
+            filteredData.forEach(d => {
+                if (d['Campaña de referencia']) {
+                    campCounts[d['Campaña de referencia']] = (campCounts[d['Campaña de referencia']] || 0) + 1;
+                }
+            });
+            const bestCamp = Object.keys(campCounts).length > 0 ? Object.keys(campCounts).reduce((a, b) => campCounts[a] > campCounts[b] ? a : b) : '-';
+            const campInsight = `La campaña <b>${bestCamp}</b> lidera los resultados. Recomendable analizar sus atributos para replicarlos en futuras estrategias.`;
+
+            list.innerHTML = `
+                <li class="flex items-start"><span class="text-red-600 mr-2">📌</span> <span>${trafficInsight}</span></li>
+                <li class="flex items-start"><span class="text-red-600 mr-2">📌</span> <span>${dayInsight}</span></li>
+                <li class="flex items-start"><span class="text-red-600 mr-2">📌</span> <span>${campInsight}</span></li>
+            `;
+        }
+    </script>
+</body>
+
+</html>
