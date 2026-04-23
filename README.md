@@ -85,6 +85,16 @@ Dado que el dashboard procesa toda la información de manera local en el navegad
 - **Rendimiento Óptimo (Recomendado):** Para una carga y aplicación de filtros fluida e instantánea, se sugiere utilizar archivos de hasta **100,000 filas** (aprox. 15 MB).
 - **Límite Máximo Práctico:** El sistema puede procesar archivos de hasta **500,000 a 1,000,000 de filas** (aprox. 100 MB a 150 MB). Con este volumen de datos, el navegador puede experimentar ligeros congelamientos temporales mientras se procesa la información en la memoria. Superar este límite podría ocasionar que la pestaña colapse por falta de memoria.
 
+## 7. Exportación a PDF y Ajuste del Filtro de Dirección
+
+> [!NOTE]
+> **Impacto Global del Filtro de Dirección**
+> Se ajustó la lógica del selector de "Dirección" (Inbound/Outbound) para que opere de manera global sobre todo el dashboard (KPIs, gráficos e insights). Adicionalmente, se programó un comportamiento especial en la tabla cruzada ("Dirección vs Día de la Semana") para que al seleccionar una dirección, la tabla oculte por completo la fila contraria en lugar de mostrarla en ceros, garantizando una visualización enfocada y limpia.
+
+> [!NOTE]
+> **Exportación Visual del Dashboard**
+> Se integró la librería `html2pdf.js` para habilitar una opción de exportación rápida en formato PDF. Al hacer clic en el nuevo botón "Exportar PDF", el sistema captura limpiamente los KPIs, filtros seleccionados, gráficos, tabla dinámica y los insights automáticos, generando un reporte visual profesional y optimizado para compartir con stakeholders (respetando la estructura visual y paleta de colores).
+
 ---
 
-**Estado Actual:** Proyecto estabilizado, tolerante a errores de exportación, interactivo y con una presentación ejecutiva óptima, integrando analítica completa de campañas y canales.
+**Estado Actual:** Proyecto estabilizado, tolerante a errores de exportación, interactivo y con una presentación ejecutiva óptima, integrando analítica completa de campañas y canales, y capacidad de reporte exportable.
