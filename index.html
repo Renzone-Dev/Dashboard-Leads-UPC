@@ -12,6 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- PapaParse (CDN) for CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- html2pdf.js (CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -82,6 +84,11 @@
             </div>
         </div>
         <div class="flex items-center space-x-4">
+            <button onclick="exportToPDF()"
+                class="bg-gray-800 border border-gray-800 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-gray-900 font-medium transition text-sm flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Exportar PDF
+            </button>
             <label
                 class="bg-red-600 border border-gray-300 text-white px-4 py-2 rounded-lg shadow-sm cursor-pointer hover:bg-gray-50 hover:text-gray-900 font-medium transition text-sm">
                 Cargar CSV
@@ -94,6 +101,7 @@
         </div>
     </header>
 
+    <div id="exportable-area">
     <!-- KPIs -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
         <div class="card flex flex-col justify-center">
@@ -233,6 +241,7 @@
                 </table>
             </div>
         </div>
+    </div>
     </div>
 
     <script>
@@ -623,10 +632,13 @@
         function renderPivotTable() {
             // Filas: Dirección, Cols: Día semana, Val: Count unique Cod Persona
             const pivot = { 'Inbound': {}, 'Outbound': {} };
+            const dirVal = document.getElementById('filterDirection').value;
             daysOrder.forEach(d => { pivot['Inbound'][d] = new Set(); pivot['Outbound'][d] = new Set(); });
 
             filteredData.forEach(d => {
                 const dir = d['Dirección'];
+                if (dirVal !== 'ALL' && dir !== dirVal) return;
+                
                 const day = d['Día de la semana'] ? d['Día de la semana'].toLowerCase() : null;
                 const cod = d['Cod Persona'];
                 if ((dir === 'Inbound' || dir === 'Outbound') && day && pivot[dir][day]) {
@@ -639,6 +651,8 @@
             let grandTotal = 0;
 
             ['Inbound', 'Outbound'].forEach(dir => {
+                if (dirVal !== 'ALL' && dir !== dirVal) return;
+                
                 let rowTotal = 0;
                 let tr = `<tr class="hover:bg-gray-50 transition"><td class="px-4 py-3 font-medium text-gray-900">${dir}</td>`;
                 daysOrder.forEach(day => {
@@ -697,6 +711,25 @@
                 <li class="flex items-start"><span class="text-red-600 mr-2">📌</span> <span>${dayInsight}</span></li>
                 <li class="flex items-start"><span class="text-red-600 mr-2">📌</span> <span>${campInsight}</span></li>
             `;
+        }
+
+        function exportToPDF() {
+            showLoader();
+            const element = document.getElementById('exportable-area');
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     'Dashboard_Leads.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a3', orientation: 'landscape' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                hideLoader();
+            }).catch(err => {
+                console.error("Error al exportar PDF: ", err);
+                hideLoader();
+            });
         }
     </script>
 </body>
