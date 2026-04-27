@@ -76,7 +76,9 @@ Todos los gráficos, tarjetas (KPIs) y la tabla cruzada responden inmediatamente
 - **Total de Leads (KPI):** Conteo de valores únicos de la columna `Cod Persona` para evitar data duplicada.
 - **Porcentajes de Inbound / Outbound:** Clasificación estricta mediante limpieza de strings.
 - **Día de mayor rendimiento (Mejor Día):** Moda estadística por iteración cruzada.
-- **Tabla Dinámica (Pivot Table):** Intersección de Dirección vs Día de la semana contando entidades únicas.
+- **Tablas Dinámicas (Pivot Tables):**
+  - **Dirección vs Día de la Semana:** Intersección fija que cuenta leads únicos por día para evaluar el rendimiento micro (intrasemanal).
+  - **Dirección vs Semana:** Intersección dinámica que escanea los datos activos, identifica las semanas existentes, las ordena numéricamente y autogenera las columnas correspondientes para comparar la evolución macro del volumen Inbound/Outbound. Ambas tablas basan su conteo en la métrica estricta de leads únicos (`Cod Persona`).
 
 ## 6. Capacidades y Límites de Carga
 
@@ -114,4 +116,5 @@ Dado que el dashboard procesa toda la información de manera local en el navegad
 
 - **Generación de Insights Inteligentes:** Al hacer clic en el botón "Yimini IA" (el cual ha sido dotado de un efecto visual pulsante `animate-glow-pulse` para fomentar la interacción), el dashboard recopila los datos actualmente filtrados en pantalla (totales, distribuciones, mejores días y top de campañas). Estos datos conforman un _prompt_ estructurado que se envía a la IA, la cual devuelve una lista de insights narrativos interpretando las tendencias.
 - **Seguridad y Ofuscación de API Key:** Dado que el dashboard ha sido concebido para alojarse de forma pública (ej. GitHub Pages) sin un servidor backend, la clave de la API de Gemini se ha protegido mediante un mecanismo de ofuscación de strings (inversión de cadenas). Esto previene que bots automatizados de rastreo detecten y extraigan la llave al analizar el código fuente público.
+- **Actualización de Modelo de IA:** Se modificó la petición interna de la API para conectarse específicamente al modelo de última generación **`gemini-2.5-flash`**, ya que este es el modelo asignado y optimizado por los servidores de Google para las nuevas API Keys, garantizando compatibilidad total (evitando el error HTTP 404).
 - **Sistema de Respaldo (Fallback Automático):** Si la API de Gemini no responde por problemas de red, límite de cuota o clave revocada, el sistema incluye un mecanismo de _fallback_ robusto. Automáticamente ejecutará la función `generateInsights()`, la cual calcula y muestra conclusiones estadísticas locales mediante algoritmos de JavaScript clásico, asegurando que la sección de Insights nunca quede vacía.
