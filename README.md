@@ -16,6 +16,14 @@ El **Dashboard Traffic UPC** es una herramienta analítica web autónoma (HTML, 
 ## 1. Actualizaciones Recientes
 
 > [!NOTE]
+> **Selección Múltiple de Filtros con Interfaz Personalizada (Dropdowns)**
+> Se modernizó el sistema de filtrado permitiendo elegir 1, 2 o múltiples opciones simultáneas en los selectores de Campaña, Canal, Segmento, Fecha y Semana. Para mantener una interfaz limpia sin dependencias de terceros, se desarrolló un componente desplegable propio con Tailwind CSS que incluye casillas de verificación (checkboxes) e indicadores de selección resumidos.
+
+> [!NOTE]
+> **Nuevo Análisis de Concentración por Hora**
+> Se añadió un Gráfico de Dispersión (Scatter Chart) que permite visualizar en qué horas del día los leads ingresan al CRM. El parser de CSV fue adaptado para limpiar y extraer eficientemente el formato numérico o de texto horario (`14:30` o similares) alojado en la columna "Hora".
+
+> [!NOTE]
 > **Mejora Visual: Gráfico de Torta (Pie) para Top Campañas**
 > Se cambió la representación visual del bloque "Top Campañas" de un gráfico de barras horizontales a un gráfico de torta (Pie Chart), permitiendo una mejor visualización de la proporción que cada campaña representa respecto al top 5 total. Además, se le aplicó la paleta de colores institucional.
 
@@ -34,25 +42,27 @@ El **Dashboard Traffic UPC** es una herramienta analítica web autónoma (HTML, 
 - **Normalización Robusta de Columnas (PapaParse):**
   - Para evitar que variaciones en los nombres de las columnas rompan el dashboard, se añadió un proceso de limpieza.
   - Se eliminan espacios extra, se quitan tildes usando `.normalize("NFD")` y se pasa todo a minúsculas antes de mapear.
+  - **Manejo de Horas Vacías:** Se añadió una validación estricta al parsear la columna "Hora". Las celdas vacías ahora son explícitamente ignoradas en lugar de ser interpretadas como el número cero. Esto previene un pico falso de datos a las "0:00 hrs" que distorsionaba el KPI de "Mejor Horario" y el Diagrama de Dispersión.
 
 - **Optimización de Rendimiento (Renderizado de Filtros):**
   - Se solucionó un problema crítico que congelaba la página web al cargar archivos que contenían miles de opciones únicas (como fechas u horas).
   - Se cambió la lógica de inyección HTML de los filtros desplegables. En lugar de forzar al navegador a redibujar el elemento múltiples veces en un bucle (`innerHTML +=`), ahora el código concatena el texto en memoria y lo inyecta una sola vez. Esto asegura que la página ya no se quede en blanco, acelerando los tiempos de carga masiva.
 
-## 3. Nuevas Funcionalidades (Filtros Avanzados)
+## 3. Nuevas Funcionalidades (Filtros Avanzados Multi-Selección)
 
-Se ampliaron las capacidades de filtrado interactivo. Ahora el usuario puede segmentar la data cruzando hasta 6 variables en tiempo real:
+Se ampliaron las capacidades de filtrado interactivo. Ahora el usuario puede segmentar la data seleccionando múltiples valores al mismo tiempo, cruzando hasta 7 variables:
 
-- Campaña
-- Canal
-- Segmento
-- **Fecha**
-- **Semana**
-- **Dirección**
+- Campañas (Multi-select)
+- Canales (Multi-select)
+- Segmentos (Multi-select)
+- **Fechas** (Multi-select)
+- **Semanas** (Multi-select)
+- **Horas** (Multi-select)
+- **Dirección** (Selección Única)
 
 > [!NOTE]
 > **Filtros en Cascada (Dinámicos)**
-> Los filtros ahora son inteligentes y dependientes. Al seleccionar un valor en cualquiera de los filtros (por ejemplo, una Campaña específica), las opciones de los demás filtros (Canal, Segmento, Fecha, etc.) se actualizan automáticamente para mostrar **solo los datos que están disponibles** bajo esa selección. Esto evita que el usuario vea opciones vacías o sin resultados, mejorando la experiencia de exploración de datos.
+> Los filtros ahora son inteligentes y dependientes. Al seleccionar un valor en cualquiera de los filtros (por ejemplo, una Campaña específica), las opciones de los demás filtros (Canal, Segmento, Fecha, etc.) se actualizan automáticamente para mostrar **solo los datos que están disponibles** bajo esa selección. Esto evita que el usuario vea opciones vacías o sin resultados, mejorando la experiencia de exploración de datos. Además, se implementó un botón **"Limpiar Filtros"** que restablece todos los selectores a su estado global original de forma simultánea.
 
 Todos los gráficos, tarjetas (KPIs) y la tabla cruzada responden inmediatamente a la combinación de estos 6 selectores.
 
@@ -75,7 +85,8 @@ Todos los gráficos, tarjetas (KPIs) y la tabla cruzada responden inmediatamente
 
 - **Total de Leads (KPI):** Conteo de valores únicos de la columna `Cod Persona` para evitar data duplicada.
 - **Porcentajes de Inbound / Outbound:** Clasificación estricta mediante limpieza de strings.
-- **Día de mayor rendimiento (Mejor Día):** Moda estadística por iteración cruzada.
+- **Día de mayor rendimiento (Mejor Día):** Moda estadística por iteración cruzada del día con mayor volumen.
+- **Horario de mayor rendimiento (Mejor Horario):** Moda estadística por iteración cruzada de las horas (mostrada en formato `XX:00 hrs`).
 - **Tablas Dinámicas (Pivot Tables):**
   - **Dirección vs Día de la Semana:** Intersección fija que cuenta leads únicos por día para evaluar el rendimiento micro (intrasemanal).
   - **Dirección vs Semana:** Intersección dinámica que escanea los datos activos, identifica las semanas existentes, las ordena numéricamente y autogenera las columnas correspondientes para comparar la evolución macro del volumen Inbound/Outbound. Ambas tablas basan su conteo en la métrica estricta de leads únicos (`Cod Persona`).
@@ -102,7 +113,7 @@ Dado que el dashboard procesa toda la información de manera local en el navegad
 
 > [!TIP]
 > **Modal de Instrucciones de Formato de Datos**
-> Se añadió un botón informativo (icono "?") junto al botón "Cargar CSV". Al pulsarlo, despliega un modal o ventana superpuesta que orienta al usuario indicándole las 8 columnas obligatorias que debe tener el archivo CSV, además de dar recomendaciones de limpieza de datos (formato de fechas, evitar celdas vacías, etc.), mejorando la adopción y disminuyendo la fricción al cargar archivos nuevos.
+> Se añadió un botón informativo (icono "?") junto al botón "Cargar CSV". Al pulsarlo, despliega un modal o ventana superpuesta que orienta al usuario indicándole las 9 columnas obligatorias que debe tener el archivo CSV (incluyendo la recién incorporada columna "Hora"), además de dar recomendaciones de limpieza de datos (formato de fechas, evitar celdas vacías, etc.), mejorando la adopción y disminuyendo la fricción al cargar archivos nuevos.
 
 ---
 
@@ -114,7 +125,7 @@ Dado que el dashboard procesa toda la información de manera local en el navegad
 > **Botón "Yimini IA" y Análisis Cognitivo**
 > Se integró la API de Google Gemini directamente en el frontend para ofrecer análisis de datos avanzados y conclusiones estratégicas con un solo clic.
 
-- **Generación de Insights Inteligentes:** Al hacer clic en el botón "Yimini IA" (el cual ha sido dotado de un efecto visual pulsante `animate-glow-pulse` para fomentar la interacción), el dashboard recopila los datos actualmente filtrados en pantalla (totales, distribuciones, mejores días y top de campañas). Estos datos conforman un _prompt_ estructurado que se envía a la IA, la cual devuelve una lista de insights narrativos interpretando las tendencias.
+- **Generación de Insights Inteligentes:** Al hacer clic en el botón "Yimini IA" (el cual ha sido dotado de un efecto visual pulsante `animate-glow-pulse` para fomentar la interacción), el dashboard compila un set completo de datos que incluye horas, segmentos, días, canales y campañas. Este prompt instruye a la IA para emitir **5 insights estratégicos breves de alto impacto** orientados a acciones de negocio.
 - **Seguridad y Ofuscación de API Key:** Dado que el dashboard ha sido concebido para alojarse de forma pública (ej. GitHub Pages) sin un servidor backend, la clave de la API de Gemini se ha protegido mediante un mecanismo de ofuscación de strings (inversión de cadenas). Esto previene que bots automatizados de rastreo detecten y extraigan la llave al analizar el código fuente público.
 - **Actualización de Modelo de IA:** Se modificó la petición interna de la API para conectarse específicamente al modelo de última generación **`gemini-2.5-flash`**, ya que este es el modelo asignado y optimizado por los servidores de Google para las nuevas API Keys, garantizando compatibilidad total (evitando el error HTTP 404).
-- **Sistema de Respaldo (Fallback Automático):** Si la API de Gemini no responde por problemas de red, límite de cuota o clave revocada, el sistema incluye un mecanismo de _fallback_ robusto. Automáticamente ejecutará la función `generateInsights()`, la cual calcula y muestra conclusiones estadísticas locales mediante algoritmos de JavaScript clásico, asegurando que la sección de Insights nunca quede vacía.
+- **Sistema de Respaldo (Fallback Automático Expandido):** Si la API de Gemini no responde por problemas de red o límite de cuota, el sistema incluye un mecanismo de _fallback_ robusto. La función `generateInsights()` ahora evalúa automáticamente hasta 6 conclusiones estadísticas clásicas locales (Tráfico dominante, Día clave, Hora punta, Mejor Campaña, Canal Estrella y Segmento principal), garantizando que la lectura analítica siempre brinde valor.
