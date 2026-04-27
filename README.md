@@ -92,9 +92,26 @@ Dado que el dashboard procesa toda la información de manera local en el navegad
 > Se ajustó la lógica del selector de "Dirección" (Inbound/Outbound) para que opere de manera global sobre todo el dashboard (KPIs, gráficos e insights). Adicionalmente, se programó un comportamiento especial en la tabla cruzada ("Dirección vs Día de la Semana") para que al seleccionar una dirección, la tabla oculte por completo la fila contraria en lugar de mostrarla en ceros, garantizando una visualización enfocada y limpia.
 
 > [!NOTE]
-> **Exportación Visual del Dashboard**
-> Se integró la librería `html2pdf.js` para habilitar una opción de exportación rápida en formato PDF. Al hacer clic en el nuevo botón "Exportar PDF", el sistema captura limpiamente los KPIs, filtros seleccionados, gráficos, tabla dinámica y los insights automáticos, generando un reporte visual profesional y optimizado para compartir con stakeholders (respetando la estructura visual y paleta de colores).
+> **Exportación Visual Avanzada (PDF Reports en A4 Vertical)**
+> Se integró y re-configuró la librería `html2pdf.js` junto a `chartjs-plugin-datalabels` para generar reportes ejecutivos listos para producción y orientados a impresión:
+> - **Data Labels Dinámicas con Retardo:** Los gráficos se mantienen minimalistas en el visor, pero al exportar revelan automáticamente las etiquetas numéricas para que el reporte impreso sea explícito. Estas etiquetas permanecen visibles por 10 segundos tras la exportación y luego desaparecen automáticamente, brindando contexto temporal y limpieza visual.
+> - **Estructura Inteligente Anti-Cortes:** Se eliminaron reglas CSS globales (como clases `.export-mode` que generaban bugs de colapso) y se optó por un control programático mediante JavaScript. Ahora, al exportar, se inyecta dinámicamente `page-break-inside: avoid` a nivel _inline_ en todas las tarjetas, tablas y gráficos (canvas), y se refuerza con la configuración `pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }` del motor PDF, garantizando que ninguna gráfica o tabla se parta a la mitad entre dos hojas físicas.
+> - **Optimización para Layout A4 Vertical (Portrait):** Para lograr que el diseño de escritorio (de 2 columnas para gráficos y 4 para KPIs) se acomode de forma legible y elegante en una hoja vertical (A4), el script ahora bloquea temporalmente el contenedor principal a un ancho fijo de `800px`. A continuación, utiliza un temporizador (`setTimeout` de 500ms) para dar tiempo a que los motores internos de `Chart.js` recalculen sus dimensiones y se re-dibujen a esta nueva escala antes de hacer la captura fotográfica del documento. Tras exportarse, se activa una función `cleanupExport` que purga todos los anchos forzados, devolviendo la vista web a su estado 100% responsivo original.
+
+> [!TIP]
+> **Modal de Instrucciones de Formato de Datos**
+> Se añadió un botón informativo (icono "?") junto al botón "Cargar CSV". Al pulsarlo, despliega un modal o ventana superpuesta que orienta al usuario indicándole las 8 columnas obligatorias que debe tener el archivo CSV, además de dar recomendaciones de limpieza de datos (formato de fechas, evitar celdas vacías, etc.), mejorando la adopción y disminuyendo la fricción al cargar archivos nuevos.
 
 ---
 
 **Estado Actual:** Proyecto estabilizado, tolerante a errores de exportación, interactivo y con una presentación ejecutiva óptima, integrando analítica completa de campañas y canales, y capacidad de reporte exportable.
+
+## 8. Integración con IA Generativa (Google Gemini)
+
+> [!TIP]
+> **Botón "Yimini IA" y Análisis Cognitivo**
+> Se integró la API de Google Gemini directamente en el frontend para ofrecer análisis de datos avanzados y conclusiones estratégicas con un solo clic.
+
+- **Generación de Insights Inteligentes:** Al hacer clic en el botón "Yimini IA" (el cual ha sido dotado de un efecto visual pulsante `animate-glow-pulse` para fomentar la interacción), el dashboard recopila los datos actualmente filtrados en pantalla (totales, distribuciones, mejores días y top de campañas). Estos datos conforman un _prompt_ estructurado que se envía a la IA, la cual devuelve una lista de insights narrativos interpretando las tendencias.
+- **Seguridad y Ofuscación de API Key:** Dado que el dashboard ha sido concebido para alojarse de forma pública (ej. GitHub Pages) sin un servidor backend, la clave de la API de Gemini se ha protegido mediante un mecanismo de ofuscación de strings (inversión de cadenas). Esto previene que bots automatizados de rastreo detecten y extraigan la llave al analizar el código fuente público.
+- **Sistema de Respaldo (Fallback Automático):** Si la API de Gemini no responde por problemas de red, límite de cuota o clave revocada, el sistema incluye un mecanismo de _fallback_ robusto. Automáticamente ejecutará la función `generateInsights()`, la cual calcula y muestra conclusiones estadísticas locales mediante algoritmos de JavaScript clásico, asegurando que la sección de Insights nunca quede vacía.
