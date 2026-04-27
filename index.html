@@ -276,11 +276,11 @@
         </div>
     </div>
 
-    <!-- Tabla Dinámica y Insights -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 pivot-container">
-        <div class="card lg:col-span-4 overflow-x-auto">
-            <h2 class="text-lg font-semibold mb-6 text-gray-900 tracking-tight">Dirección vs Día de la Semana (Leads
-                Únicos)</h2>
+    <!-- Tablas Dinámicas -->
+    <div class="grid grid-cols-1 gap-8 mb-8 pivot-container">
+        <!-- Tabla Día de la Semana -->
+        <div class="card overflow-x-auto">
+            <h2 class="text-lg font-semibold mb-6 text-gray-900 tracking-tight">Dirección vs Día de la Semana (Leads Únicos)</h2>
             <div class="rounded-lg border border-gray-200 overflow-hidden">
                 <table class="min-w-full text-sm text-left text-gray-600" id="pivotTable">
                     <thead class="bg-gray-50 text-gray-500 uppercase text-xs tracking-wider border-b border-gray-200">
@@ -302,7 +302,21 @@
                 </table>
             </div>
         </div>
-    </div>
+
+        <!-- Tabla Semana -->
+        <div class="card overflow-x-auto">
+            <h2 class="text-lg font-semibold mb-6 text-gray-900 tracking-tight">Dirección vs Semana (Leads Únicos)</h2>
+            <div class="rounded-lg border border-gray-200 overflow-hidden">
+                <table class="min-w-full text-sm text-left text-gray-600" id="pivotSemanaTable">
+                    <thead class="bg-gray-50 text-gray-500 uppercase text-xs tracking-wider border-b border-gray-200" id="pivotSemanaHead">
+                        <!-- Dinámico -->
+                    </thead>
+                    <tbody id="pivotSemanaBody" class="divide-y divide-gray-100">
+                        <!-- Dinámico -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -488,6 +502,7 @@
             updateKPIs();
             renderCharts();
             renderPivotTable();
+            renderPivotSemanaTable();
             generateInsights();
         }
 
@@ -702,6 +717,77 @@
         }
 
         /**
+         * Genera dinámicamente la tabla cruzada (Dirección vs Semana).
+         * Calcula conteos únicos por "Cod Persona" agrupados por número de semana.
+         */
+        function renderPivotSemanaTable() {
+            // Filas: Dirección, Cols: Semana (dinámicas), Val: Count unique Cod Persona
+            const pivot = { 'Inbound': {}, 'Outbound': {} };
+            const dirVal = document.getElementById('filterDirection').value;
+            
+            // Extract unique weeks
+            const weeksSet = new Set();
+            filteredData.forEach(d => {
+                const week = d['Número de semana']; // El campo normalizado en parse CSV es "Número de semana"
+                if (week !== undefined && week !== null && week !== '') weeksSet.add(String(week));
+            });
+            
+            // Sort weeks numerically
+            const weeksOrder = Array.from(weeksSet).sort((a, b) => {
+                return parseInt(a) - parseInt(b);
+            });
+
+            weeksOrder.forEach(w => { pivot['Inbound'][w] = new Set(); pivot['Outbound'][w] = new Set(); });
+
+            filteredData.forEach(d => {
+                const dir = d['Dirección'];
+                if (dirVal !== 'ALL' && dir !== dirVal) return;
+                
+                const week = d['Número de semana'];
+                const cod = d['Cod Persona'];
+                if ((dir === 'Inbound' || dir === 'Outbound') && week !== undefined && week !== null && week !== '' && pivot[dir][String(week)]) {
+                    pivot[dir][String(week)].add(cod);
+                }
+            });
+
+            // Thead dynamic construction
+            let thead = `<tr><th class="px-4 py-3 font-medium">Dirección</th>`;
+            weeksOrder.forEach(w => {
+                thead += `<th class="px-4 py-3 font-medium whitespace-nowrap">Semana ${w}</th>`;
+            });
+            thead += `<th class="px-4 py-3 font-medium text-red-600">Total</th></tr>`;
+            document.getElementById('pivotSemanaHead').innerHTML = thead;
+
+            let tbody = '';
+            let colTotals = {};
+            weeksOrder.forEach(w => colTotals[w] = 0);
+            let grandTotal = 0;
+
+            ['Inbound', 'Outbound'].forEach(dir => {
+                if (dirVal !== 'ALL' && dir !== dirVal) return;
+                
+                let rowTotal = 0;
+                let tr = `<tr class="hover:bg-gray-50 transition"><td class="px-4 py-3 font-medium text-gray-900">${dir}</td>`;
+                weeksOrder.forEach(week => {
+                    const count = pivot[dir][week].size;
+                    rowTotal += count;
+                    colTotals[week] += count;
+                    tr += `<td class="px-4 py-3">${count}</td>`;
+                });
+                grandTotal += rowTotal;
+                tr += `<td class="px-4 py-3 font-semibold text-red-700 bg-red-50/30">${rowTotal}</td></tr>`;
+                tbody += tr;
+            });
+
+            // Total Row
+            let tfoot = `<tr class="bg-gray-50 border-t border-gray-200 font-semibold"><td class="px-4 py-3 text-gray-900">TOTAL GENERAL</td>`;
+            weeksOrder.forEach(week => { tfoot += `<td class="px-4 py-3 text-gray-800">${colTotals[week]}</td>`; });
+            tfoot += `<td class="px-4 py-3 text-red-700">${grandTotal}</td></tr>`;
+
+            document.getElementById('pivotSemanaBody').innerHTML = tbody + tfoot;
+        }
+
+        /**
          * Analiza los datos actualmente filtrados y genera frases dinámicas (Insights)
          * resaltando tendencias de negocio como: mejor día, mejor campaña y distribución de tráfico.
          */
@@ -792,11 +878,9 @@
                 });
 
                 if (!response.ok) {
-                    if (response.status === 400 || response.status === 403) {
-                        localStorage.removeItem('gemini_api_key');
-                        throw new Error("API Key inválida o sin permisos.");
-                    }
-                    throw new Error("Error en la respuesta de Gemini.");
+                    const errorDetails = await response.text();
+                    console.error("Gemini API Error Details:", errorDetails);
+                    throw new Error(`HTTP ${response.status} - Detalles: ${errorDetails}`);
                 }
 
                 const result = await response.json();
