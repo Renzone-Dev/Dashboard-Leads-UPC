@@ -129,3 +129,20 @@ Dado que el dashboard procesa toda la información de manera local en el navegad
 - **Seguridad y Ofuscación de API Key:** Dado que el dashboard ha sido concebido para alojarse de forma pública (ej. GitHub Pages) sin un servidor backend, la clave de la API de Gemini se ha protegido mediante un mecanismo de ofuscación de strings (inversión de cadenas). Esto previene que bots automatizados de rastreo detecten y extraigan la llave al analizar el código fuente público.
 - **Actualización de Modelo de IA:** Se modificó la petición interna de la API para conectarse específicamente al modelo de última generación **`gemini-2.5-flash`**, ya que este es el modelo asignado y optimizado por los servidores de Google para las nuevas API Keys, garantizando compatibilidad total (evitando el error HTTP 404).
 - **Sistema de Respaldo (Fallback Automático Expandido):** Si la API de Gemini no responde por problemas de red o límite de cuota, el sistema incluye un mecanismo de _fallback_ robusto. La función `generateInsights()` ahora evalúa automáticamente hasta 6 conclusiones estadísticas clásicas locales (Tráfico dominante, Día clave, Hora punta, Mejor Campaña, Canal Estrella y Segmento principal), garantizando que la lectura analítica siempre brinde valor.
+
+## 9. Nuevas Vistas y Mejoras de Usabilidad
+
+> [!NOTE]
+> **Búsqueda Inteligente en Filtros Desplegables**
+> Se integraron barras de búsqueda en tiempo real dentro de los filtros de "Campaña", "Canal" y "Segmento". Esta mejora facilita enormemente la selección de opciones en listas largas (como los segmentos). La búsqueda es insensible a mayúsculas y acentos (utilizando normalización NFD), y su estado se mantiene estable sin importar la actualización cruzada de los filtros en cascada. El botón "Limpiar Filtros" también borra el contenido de estas búsquedas.
+
+> [!NOTE]
+> **Promedios Dinámicos en Tablas Cruzadas (Disclaimers)**
+> Se añadieron pequeños textos informativos (disclaimers) debajo de las tablas cruzadas de "Dirección vs Día" y "Dirección vs Semana". Estos textos calculan de manera automática y matemática el **promedio diario y semanal de leads**, desglosándolo entre Inbound y Outbound, según los filtros activos.
+
+> [!NOTE]
+> **Nueva Tabla: Detalle de Registros (Inbound / Outbound)**
+> Se creó una vista tubular especializada para auditar en profundidad los registros. Esta tabla agrupa la información basándose en la intersección de Campaña, Canal, Segmento, Semana y Dirección, calculando automáticamente el total de registros consolidados. 
+> - **Limpieza de Datos Visual:** Se programó una función para limpiar los nombres de los segmentos, eliminando sufijos numéricos (ej. `- 314`) y mejorando la legibilidad. Se omitieron columnas innecesarias como "Fecha" y "Hora" de esta vista para mantener un análisis enfocado.
+> - **Ordenamiento Interactivo Excel-like:** Se implementó lógica de ordenamiento directo en los encabezados de las columnas. Al hacer clic en cualquier encabezado (Campaña, Registros, etc.), la tabla se ordena automáticamente ascendente o descendente, mostrando flechas indicadoras (`▲` / `▼`).
+> - **Fila de Totales Dinámica:** La tabla cuenta con un pie de tabla fijado en la parte inferior (sticky footer) que suma en tiempo real todos los registros mostrados, brindando visibilidad instantánea del volumen total bajo el filtro actual.
