@@ -200,8 +200,11 @@
                     <span id="label-filterCampaign" class="truncate block pr-2 font-medium">Todas</span>
                     <svg class="w-4 h-4 text-gray-400 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
-                <div id="dropdown-filterCampaign" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl hidden max-h-60 overflow-y-auto">
-                    <ul id="list-filterCampaign" class="p-1 space-y-0.5"></ul>
+                <div id="dropdown-filterCampaign" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl hidden flex flex-col max-h-60">
+                    <div class="p-2 border-b border-gray-100">
+                        <input type="text" placeholder="Buscar campaña..." class="dropdown-search w-full text-xs p-1.5 border border-gray-200 rounded focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 transition" data-list-id="list-filterCampaign" onkeyup="filterDropdownOptions('list-filterCampaign', this.value)" onclick="event.stopPropagation()">
+                    </div>
+                    <ul id="list-filterCampaign" class="p-1 space-y-0.5 overflow-y-auto flex-1"></ul>
                 </div>
             </div>
 
@@ -213,8 +216,11 @@
                     <span id="label-filterChannel" class="truncate block pr-2 font-medium">Todos</span>
                     <svg class="w-4 h-4 text-gray-400 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
-                <div id="dropdown-filterChannel" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl hidden max-h-60 overflow-y-auto">
-                    <ul id="list-filterChannel" class="p-1 space-y-0.5"></ul>
+                <div id="dropdown-filterChannel" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl hidden flex flex-col max-h-60">
+                    <div class="p-2 border-b border-gray-100">
+                        <input type="text" placeholder="Buscar canal..." class="dropdown-search w-full text-xs p-1.5 border border-gray-200 rounded focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 transition" data-list-id="list-filterChannel" onkeyup="filterDropdownOptions('list-filterChannel', this.value)" onclick="event.stopPropagation()">
+                    </div>
+                    <ul id="list-filterChannel" class="p-1 space-y-0.5 overflow-y-auto flex-1"></ul>
                 </div>
             </div>
 
@@ -226,8 +232,11 @@
                     <span id="label-filterSegment" class="truncate block pr-2 font-medium">Todos</span>
                     <svg class="w-4 h-4 text-gray-400 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
-                <div id="dropdown-filterSegment" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl hidden max-h-60 overflow-y-auto">
-                    <ul id="list-filterSegment" class="p-1 space-y-0.5"></ul>
+                <div id="dropdown-filterSegment" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl hidden flex flex-col max-h-60">
+                    <div class="p-2 border-b border-gray-100">
+                        <input type="text" placeholder="Buscar segmento..." class="dropdown-search w-full text-xs p-1.5 border border-gray-200 rounded focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 transition" data-list-id="list-filterSegment" onkeyup="filterDropdownOptions('list-filterSegment', this.value)" onclick="event.stopPropagation()">
+                    </div>
+                    <ul id="list-filterSegment" class="p-1 space-y-0.5 overflow-y-auto flex-1"></ul>
                 </div>
             </div>
 
@@ -363,6 +372,7 @@
                     </tbody>
                 </table>
             </div>
+            <p id="disclaimerPivotDay" class="text-xs text-gray-500 mt-3 italic text-right font-medium"></p>
         </div>
 
         <!-- Tabla Semana -->
@@ -378,6 +388,27 @@
                     </tbody>
                 </table>
             </div>
+            <p id="disclaimerPivotWeek" class="text-xs text-gray-500 mt-3 italic text-right font-medium"></p>
+        </div>
+        
+        <!-- Tabla Detallada Outbound/Inbound -->
+        <div class="card overflow-x-auto md:col-span-1">
+            <h2 class="text-lg font-semibold mb-6 text-gray-900 tracking-tight">Detalle de Registros (Inbound / Outbound)</h2>
+            <div class="rounded-lg border border-gray-200 overflow-hidden">
+                <div class="max-h-96 overflow-y-auto">
+                    <table class="min-w-full text-sm text-left text-gray-600" id="detailedTable">
+                        <thead class="bg-gray-50 text-gray-500 uppercase text-xs tracking-wider border-b border-gray-200 sticky top-0 z-10 shadow-sm" id="detailedTableHead">
+                            <!-- Dinámico -->
+                        </thead>
+                        <tbody id="detailedTableBody" class="divide-y divide-gray-100">
+                            <!-- Dinámico -->
+                        </tbody>
+                        <tfoot id="detailedTableFoot" class="bg-gray-50 font-semibold border-t border-gray-200 text-gray-900 sticky bottom-0 z-10 shadow-sm">
+                            <!-- Dinámico -->
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -386,7 +417,21 @@
         let filteredData = [];
         let charts = {};
 
+        // Variables de ordenamiento de la tabla
+        let detailedSortCol = 'total';
+        let detailedSortAsc = false;
+
         const daysOrder = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+
+        function setDetailedSort(col) {
+            if (detailedSortCol === col) {
+                detailedSortAsc = !detailedSortAsc;
+            } else {
+                detailedSortCol = col;
+                detailedSortAsc = (col !== 'total'); // Texto ascendente, números descendente
+            }
+            renderDetailedTable();
+        }
 
         function showLoader() {
             const loader = document.getElementById('globalLoader');
@@ -503,6 +548,24 @@
             applyFilters();
         }
 
+        function filterDropdownOptions(listId, query) {
+            const list = document.getElementById(listId);
+            if (!list) return;
+            const items = list.querySelectorAll('li');
+            const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            
+            items.forEach(li => {
+                const textEl = li.querySelector('span');
+                if (!textEl) return;
+                const text = textEl.innerText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (text.includes(q)) {
+                    li.style.display = '';
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+        }
+
         let activeDropdown = null;
 
         function toggleDropdown(id, event) {
@@ -580,6 +643,12 @@
             });
             
             list.innerHTML = html;
+            
+            // Si hay un término de búsqueda activo, re-aplicarlo
+            const searchInput = document.querySelector(`input[data-list-id="list-${id}"]`);
+            if (searchInput && searchInput.value) {
+                filterDropdownOptions(`list-${id}`, searchInput.value);
+            }
             
             const firstText = sel.options.length > 0 ? (sel.querySelector('option[value="ALL"]')?.text || 'Todos') : 'Todos';
             if (selectedTexts.length === 0 || sel.options[0].selected) {
@@ -707,6 +776,12 @@
             const dirSel = document.getElementById('filterDirection');
             if (dirSel) dirSel.value = 'ALL';
             
+            // Limpiar inputs de búsqueda
+            document.querySelectorAll('.dropdown-search').forEach(input => {
+                input.value = '';
+                filterDropdownOptions(input.dataset.listId, '');
+            });
+            
             applyFilters();
         }
 
@@ -719,6 +794,7 @@
             renderCharts();
             renderPivotTable();
             renderPivotSemanaTable();
+            renderDetailedTable();
             generateInsights();
         }
 
@@ -1005,6 +1081,19 @@
             tfoot += `<td class="px-4 py-3 text-red-700">${grandTotal}</td></tr>`;
 
             document.getElementById('pivotBody').innerHTML = tbody + tfoot;
+            
+            // Calculo de promedios para el disclaimer
+            let inTotal = 0;
+            let outTotal = 0;
+            daysOrder.forEach(day => {
+                inTotal += pivot['Inbound'][day].size;
+                outTotal += pivot['Outbound'][day].size;
+            });
+            const avgIn = (inTotal / 7).toFixed(1);
+            const avgOut = (outTotal / 7).toFixed(1);
+            const avgTotal = (grandTotal / 7).toFixed(1);
+
+            document.getElementById('disclaimerPivotDay').innerHTML = `* Promedio de leads diarios: <strong>${avgTotal}</strong> (Inbound: ${avgIn} / Outbound: ${avgOut})`;
         }
 
         /**
@@ -1076,6 +1165,138 @@
             tfoot += `<td class="px-4 py-3 text-red-700">${grandTotal}</td></tr>`;
 
             document.getElementById('pivotSemanaBody').innerHTML = tbody + tfoot;
+            
+            // Calculo de promedios para el disclaimer
+            const numWeeks = weeksOrder.length || 1;
+            let inTotal = 0;
+            let outTotal = 0;
+            weeksOrder.forEach(w => {
+                inTotal += pivot['Inbound'][w].size;
+                outTotal += pivot['Outbound'][w].size;
+            });
+            const avgIn = (inTotal / numWeeks).toFixed(1);
+            const avgOut = (outTotal / numWeeks).toFixed(1);
+            const avgTotal = (grandTotal / numWeeks).toFixed(1);
+
+            document.getElementById('disclaimerPivotWeek').innerHTML = `* Promedio de leads por semana: <strong>${avgTotal}</strong> (Inbound: ${avgIn} / Outbound: ${avgOut})`;
+        }
+
+        /**
+         * Genera dinámicamente la tabla detallada de registros agrupados.
+         */
+        function renderDetailedTable() {
+            const grouped = {};
+            filteredData.forEach(d => {
+                const dir = d['Dirección'] || '-';
+                if (dir !== 'Inbound' && dir !== 'Outbound') return; // Enfocado en In/Out según requerimiento
+
+                const campana = d['Campaña de referencia'] || '-';
+                const canal = d['Canal'] || '-';
+                const segmento = d['Segmento'] || '-';
+                const semana = d['Número de semana'] || '-';
+                
+                const key = `${campana}|${canal}|${segmento}|${semana}|${dir}`;
+                
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        campana: campana,
+                        canal: canal,
+                        segmento: segmento,
+                        semana: semana,
+                        direccion: dir,
+                        total: 0
+                    };
+                }
+                grouped[key].total++;
+            });
+
+            let rows = Object.values(grouped);
+            
+            // Lógica de ordenamiento dinámica por columnas
+            rows.sort((a, b) => {
+                let valA = a[detailedSortCol];
+                let valB = b[detailedSortCol];
+                
+                // Tratar vacíos o guiones para que vayan al final
+                if (valA === '-' || valA === undefined) valA = '';
+                if (valB === '-' || valB === undefined) valB = '';
+                
+                if (typeof valA === 'string') valA = valA.toLowerCase();
+                if (typeof valB === 'string') valB = valB.toLowerCase();
+                
+                if (valA < valB) return detailedSortAsc ? -1 : 1;
+                if (valA > valB) return detailedSortAsc ? 1 : -1;
+                return 0;
+            });
+
+            // Renderizar cabeceras dinámicamente
+            const cols = [
+                { id: 'campana', label: 'Campaña' },
+                { id: 'canal', label: 'Canal' },
+                { id: 'segmento', label: 'Segmento' },
+                { id: 'total', label: 'Registros Totales' },
+                { id: 'semana', label: 'Semana' },
+                { id: 'direccion', label: 'Dirección' }
+            ];
+
+            let theadHtml = '<tr>';
+            cols.forEach(c => {
+                let isSorted = detailedSortCol === c.id;
+                let colorClass = c.id === 'total' ? 'text-red-600' : 'text-gray-500';
+                let activeClass = isSorted ? 'bg-gray-100 font-bold' : 'font-medium hover:bg-gray-50';
+                let iconHtml = isSorted 
+                    ? (detailedSortAsc ? '▲' : '▼')
+                    : '<span class="opacity-0 group-hover:opacity-100">▼</span>';
+                
+                theadHtml += `
+                    <th class="px-4 py-3 cursor-pointer transition group select-none ${colorClass} ${activeClass}" onclick="setDetailedSort('${c.id}')" title="Ordenar por ${c.label}">
+                        <div class="flex items-center gap-1">
+                            ${c.label}
+                            <span class="text-[10px] ${isSorted ? 'text-red-600' : 'text-gray-400'}">${iconHtml}</span>
+                        </div>
+                    </th>
+                `;
+            });
+            theadHtml += '</tr>';
+            const theadEl = document.getElementById('detailedTableHead');
+            if (theadEl) {
+                theadEl.innerHTML = theadHtml;
+            }
+
+            let tbody = '';
+            let sumTotal = 0;
+            if (rows.length === 0) {
+                tbody = `<tr><td colspan="6" class="px-4 py-4 text-center text-gray-500">No hay datos disponibles para Inbound/Outbound con los filtros actuales.</td></tr>`;
+            } else {
+                rows.forEach(r => {
+                    sumTotal += r.total;
+                    const dirClass = r.direccion === 'Inbound' ? 'bg-green-100 text-green-800' : (r.direccion === 'Outbound' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800');
+                    tbody += `<tr class="hover:bg-gray-50 border-b border-gray-100 transition">
+                        <td class="px-4 py-3 whitespace-nowrap">${r.campana}</td>
+                        <td class="px-4 py-3 whitespace-nowrap">${r.canal}</td>
+                        <td class="px-4 py-3 whitespace-nowrap">${r.segmento}</td>
+                        <td class="px-4 py-3 font-bold text-gray-900">${r.total}</td>
+                        <td class="px-4 py-3 whitespace-nowrap">${r.semana}</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${dirClass}">${r.direccion}</span>
+                        </td>
+                    </tr>`;
+                });
+            }
+
+            document.getElementById('detailedTableBody').innerHTML = tbody;
+            
+            // Fila de Total (Tfoot)
+            let tfoot = '';
+            if (rows.length > 0) {
+                tfoot = `<tr>
+                    <td colspan="3" class="px-4 py-3 text-right text-gray-900">TOTAL DE REGISTROS:</td>
+                    <td class="px-4 py-3 text-red-700">${sumTotal}</td>
+                    <td colspan="2" class="px-4 py-3"></td>
+                </tr>`;
+            }
+            const tfootEl = document.getElementById('detailedTableFoot');
+            if (tfootEl) tfootEl.innerHTML = tfoot;
         }
 
         /**
