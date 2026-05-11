@@ -151,7 +151,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Exportar PDF
             </button>
-             <a href="predicciones.html"
+             <a href="email_dashboard.html"
                     class="bg-blue-600 border border-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700 font-medium transition text-sm flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                     Predicciones
@@ -1347,9 +1347,48 @@
             const bestHour = Object.keys(hourCounts).length > 0 ? Object.keys(hourCounts).reduce((a, b) => hourCounts[a] > hourCounts[b] ? a : b) : '-';
             const hourInsight = bestHour !== '-' ? `La mayor concentración de leads ocurre a las <b>${bestHour}:00 hrs</b>, ideal para programar envíos y esfuerzos de contactabilidad en ese horario.` : '';
 
+            let weekInsight = '';
+            const weeksSet = new Set();
+            filteredData.forEach(d => {
+                const week = d['Número de semana'];
+                if (week !== undefined && week !== null && week !== '') weeksSet.add(String(week));
+            });
+            const sortedWeeks = Array.from(weeksSet).sort((a, b) => parseInt(a) - parseInt(b));
+            
+            if (sortedWeeks.length >= 2) {
+                const lastWeek = sortedWeeks[sortedWeeks.length - 1];
+                const prevWeek = sortedWeeks[sortedWeeks.length - 2];
+                
+                const getLeadsByWeekAndDir = (week, dir) => filteredData.filter(d => String(d['Número de semana']) === String(week) && d['Dirección'] === dir).length;
+                
+                const inboundLast = getLeadsByWeekAndDir(lastWeek, 'Inbound');
+                const inboundPrev = getLeadsByWeekAndDir(prevWeek, 'Inbound');
+                const outboundLast = getLeadsByWeekAndDir(lastWeek, 'Outbound');
+                const outboundPrev = getLeadsByWeekAndDir(prevWeek, 'Outbound');
+                
+                const getVariationText = (current, previous, label) => {
+                    if (previous === 0 && current === 0) return null;
+                    if (previous === 0) return `<b>${label}</b> pasó de 0 a ${current} leads`;
+                    const diff = ((current - previous) / previous) * 100;
+                    const action = diff >= 0 ? 'se incrementó un' : 'cayó un';
+                    return `<b>${label}</b> ${action} ${Math.abs(diff).toFixed(0)}%`;
+                };
+                
+                const inText = getVariationText(inboundLast, inboundPrev, 'Inbound');
+                const outText = getVariationText(outboundLast, outboundPrev, 'Outbound');
+                
+                if (inText || outText) {
+                    let parts = [];
+                    if (inText) parts.push(inText);
+                    if (outText) parts.push(outText);
+                    weekInsight = `En la semana <b>${lastWeek}</b>, ${parts.join(' y ')} con respecto a la semana <b>${prevWeek}</b>.`;
+                }
+            }
+
             let html = `
                 <li class="flex items-start"><span class="text-red-600 mr-2">📌</span> <span>${trafficInsight}</span></li>
             `;
+            if (weekInsight) html += `<li class="flex items-start"><span class="text-red-600 mr-2">📌</span> <span>${weekInsight}</span></li>`;
             if (dayInsight) html += `<li class="flex items-start"><span class="text-red-600 mr-2">📌</span> <span>${dayInsight}</span></li>`;
             if (hourInsight) html += `<li class="flex items-start"><span class="text-red-600 mr-2">📌</span> <span>${hourInsight}</span></li>`;
             if (campInsight) html += `<li class="flex items-start"><span class="text-red-600 mr-2">📌</span> <span>${campInsight}</span></li>`;
