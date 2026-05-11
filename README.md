@@ -146,3 +146,7 @@ Dado que el dashboard procesa toda la información de manera local en el navegad
 > - **Limpieza de Datos Visual:** Se programó una función para limpiar los nombres de los segmentos, eliminando sufijos numéricos (ej. `- 314`) y mejorando la legibilidad. Se omitieron columnas innecesarias como "Fecha" y "Hora" de esta vista para mantener un análisis enfocado.
 > - **Ordenamiento Interactivo Excel-like:** Se implementó lógica de ordenamiento directo en los encabezados de las columnas. Al hacer clic en cualquier encabezado (Campaña, Registros, etc.), la tabla se ordena automáticamente ascendente o descendente, mostrando flechas indicadoras (`▲` / `▼`).
 > - **Fila de Totales Dinámica:** La tabla cuenta con un pie de tabla fijado en la parte inferior (sticky footer) que suma en tiempo real todos los registros mostrados, brindando visibilidad instantánea del volumen total bajo el filtro actual.
+
+> [!NOTE]
+> **Evolución Semanal en Insights Estratégicos**
+> Se añadió un nuevo motor de análisis temporal en la sección de Insights locales. Cuando el dashboard detecta al menos dos semanas de historial en la base de datos cargada, calcula automáticamente el porcentaje de crecimiento o caída en la captación de leads (aplicado independientemente para esfuerzos Inbound y Outbound) entre la última y la penúltima semana, redactando la variación como un apunte ejecutivo.
