@@ -86,55 +86,7 @@
             tamaño del archivo.</p>
     </div>
 
-    <!-- Info Modal -->
-    <div id="infoModal"
-        class="fixed inset-0 z-[110] hidden flex items-center justify-center bg-gray-900/50 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-lg w-full mx-4 relative">
-            <button onclick="document.getElementById('infoModal').classList.add('hidden')"
-                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                    </path>
-                </svg>
-            </button>
-            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <span class="text-red-600 mr-2">📌</span> Guía de Formato de Datos
-            </h3>
-            <p class="text-sm text-gray-600 mb-4">
-                Para que el dashboard funcione correctamente, los datos deben cargarse mediante un archivo <strong>Excel
-                    exportado en formato CSV</strong>.
-            </p>
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
-                <h4 class="text-sm font-semibold text-gray-800 mb-2">Columnas Obligatorias:</h4>
-                <ul class="grid grid-cols-2 gap-2 text-xs text-gray-600 list-disc list-inside font-medium">
-                    <li>Direccion</li>
-                    <li>Canal</li>
-                    <li>Segmento</li>
-                    <li>Fecha de creacion</li>
-                    <li>Hora</li>
-                    <li>Dia de la semana</li>
-                    <li>Numero de semana</li>
-                    <li>Cod Persona</li>
-                    <li>Campaña de referencia</li>
-                </ul>
-            </div>
-            <h4 class="text-sm font-semibold text-gray-800 mb-2">Recomendaciones:</h4>
-            <ul class="text-sm text-gray-600 space-y-2 mb-6">
-                <li class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span> <span>La columna
-                        <strong>Fecha de creación</strong> debe estar en formato de fecha corta (ej. DD/MM/AAAA).</span>
-                </li>
-                <li class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span> <span>El archivo debe
-                        <strong>respetar los nombres de columnas</strong> para garantizar una correcta lectura.</span>
-                </li>
-                <li class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span> <span>Se recomienda
-                        <strong>evitar filas vacías</strong> o <strong>encabezados duplicados</strong>.</span></li>
-            </ul>
-            <button onclick="document.getElementById('infoModal').classList.add('hidden')"
-                class="w-full bg-red-600 text-white font-medium py-2 rounded-lg hover:bg-red-700 transition shadow-sm">
-                Entendido
-            </button>
-        </div>
-    </div>
+
 
 
     <!-- Header -->
@@ -149,14 +101,7 @@
         </div>
         <div class="flex items-center space-x-4">
             <div class="flex items-center space-x-2">
-                <button onclick="document.getElementById('infoModal').classList.remove('hidden')"
-                    class="text-gray-400 hover:text-red-600 transition bg-gray-50 hover:bg-red-50 p-2 rounded-lg border border-gray-200 shadow-sm"
-                    title="Guía de formato CSV">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </button>
+
                 <label
                     class="bg-red-600 border border-gray-300 text-white px-4 py-2 rounded-lg shadow-sm cursor-pointer hover:bg-gray-50 hover:text-gray-900 font-medium transition text-sm">
                     Cargar Datos
