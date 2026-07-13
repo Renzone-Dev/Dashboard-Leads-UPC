@@ -90,7 +90,7 @@ El score resultante se etiqueta visualmente bajo la siguiente escala:
 El monitor incorpora un asistente conversacional avanzado ("YiminIA CRM") impulsado por la API de **Google Gemini 2.5 Pro** que funciona mediante RAG (Retrieval-Augmented Generation) local.
 
 ### ⚙️ Automatización y Carga de la API Key:
-*   **Clave Preconfigurada:** Para facilitar un uso inmediato sin configuración previa, el sistema inicializa y almacena de forma automática en el navegador (`localStorage`) la clave: `AQ.Ab8RN6LjnDg6eTbs7yFJgjSoUSCTeBPOojVtiiL0I473ex4eTQ`.
+*   **Clave Preconfigurada:** Para facilitar un uso inmediato sin configuración previa, el sistema inicializa y almacena de forma automática en el navegador (`localStorage`) Ya no esta disponible.
 *   **Modelo Utilizado:** Por defecto `gemini-2.5-pro` debido a su alta ventana de contexto y capacidad de razonamiento lógico sobre datos tabulares agregados.
 *   **Personalización:** El usuario puede cambiar la clave o el modelo haciendo clic en el engranaje ⚙️ del chat.
 
