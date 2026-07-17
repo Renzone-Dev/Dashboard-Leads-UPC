@@ -1,0 +1,538 @@
+/* CSS Design System Tokens (Stitch Alignment) */
+:root {
+    --background-color: #f8f9fb;
+    --on-background: #191c1e;
+    --surface-bright: #f8f9fb;
+    --secondary-color: #5f5e5e;
+
+    /* Institutional Brand Acounts */
+    --cibertec-primary: #004165;
+    --cibertec-hover: #00314d;
+    --cibertec-glow: rgba(0, 65, 101, 0.2);
+
+    --upn-primary: #FFB700;
+    --upn-hover: #e6a500;
+    --upn-dark: #1c1b1b;
+    --upn-glow: rgba(255, 183, 0, 0.25);
+
+    --upc-primary: #E3000F;
+    --upc-hover: #c6000d;
+    --upc-glow: rgba(227, 0, 15, 0.2);
+
+    /* Fonts & Sizes */
+    --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Reset styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--background-color);
+    font-family: var(--font-family);
+    color: var(--on-background);
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Absolute layers */
+.absolute-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+/* Animated Background Pattern — repeating tile that slides upward (Stitch design) */
+.animated-logo-bg {
+    width: 100%;
+    height: 100%;
+    background-image: url('../assets/trama-upc-upn-cib.png');
+    background-size: 900px;
+    background-repeat: repeat;
+    background-position: 0 0;
+    opacity: 0.03;
+    animation: slide-up 60s linear infinite;
+}
+
+@keyframes slide-up {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 0 -1000px;
+    }
+}
+
+/* Atmospheric Glow */
+.atmospheric-glow {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 800px;
+    background-color: rgba(182, 0, 34, 0.05);
+    /* primary/5 */
+    border-radius: 9999px;
+    filter: blur(120px);
+    z-index: 0;
+}
+
+/* Main Layout Centered Content */
+.main-canvas {
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    /* margin-mobile */
+}
+
+@media (min-width: 768px) {
+    .main-canvas {
+        padding: 32px;
+        /* margin-desktop */
+    }
+}
+
+.content-wrapper {
+    width: 100%;
+    max-width: 1024px;
+    /* max-w-5xl */
+    text-align: center;
+}
+
+.mb-12 {
+    margin-bottom: 48px;
+}
+
+/* Header Typography */
+.title {
+    font-size: 55px;
+    line-height: 52px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--on-background);
+    margin-bottom: 12px;
+    min-height: 56px;
+    /* prevents layout shift during typewriter */
+    animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Gradient text for "Marketing Hub" */
+.gradient-brand {
+    background: linear-gradient(90deg, #E3000F 0%, #FFB700 50%, #004165 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline;
+}
+
+/* Typewriter blinking cursor */
+.tw-cursor {
+    display: inline-block;
+    width: 3px;
+    height: 0.85em;
+    background-color: var(--on-background);
+    margin-left: 2px;
+    vertical-align: middle;
+    border-radius: 1px;
+    animation: blink-cursor 0.75s step-end infinite;
+}
+
+@keyframes blink-cursor {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+.subtitle {
+    font-size: 16px;
+    /* body-lg */
+    line-height: 24px;
+    font-weight: 400;
+    color: var(--secondary-color);
+    max-width: 672px;
+    /* max-w-2xl */
+    margin: 0 auto;
+    animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+/* Brands Grid */
+.brand-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    /* gutter */
+    padding: 0 16px;
+    margin-bottom: 64px;
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+@media (min-width: 768px) {
+    .brand-grid {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 0;
+    }
+}
+
+/* Brand Button Card */
+.brand-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px;
+    /* p-8 */
+    border-radius: 12px;
+    /* rounded-xl (12px) */
+    border: 1px solid rgba(146, 110, 108, 0.2);
+    /* border-outline-variant/20 */
+    background: rgba(255, 255, 255, 0.75);
+    /* glass-card */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.brand-btn:focus-visible {
+    border-color: rgba(146, 110, 108, 0.8);
+    box-shadow: 0 0 0 3px rgba(182, 0, 34, 0.15);
+}
+
+/* Custom internal glow shift */
+.card-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: radial-gradient(circle, transparent 20%, transparent 80%);
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Hover behaviors */
+.brand-btn:hover {
+    transform: translateY(-4px);
+    /* hover:-translate-y-1 */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+    /* hover:shadow-2xl */
+    border-color: rgba(146, 110, 108, 0.4);
+}
+
+.brand-btn:hover .card-glow {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.brand-btn.cibertec .card-glow {
+    background: radial-gradient(circle, rgba(0, 65, 101, 0.06) 0%, rgba(0, 65, 101, 0) 70%);
+}
+
+.brand-btn.upn .card-glow {
+    background: radial-gradient(circle, rgba(255, 183, 0, 0.06) 0%, rgba(255, 183, 0, 0) 70%);
+}
+
+.brand-btn.upc .card-glow {
+    background: radial-gradient(circle, rgba(227, 0, 15, 0.06) 0%, rgba(227, 0, 15, 0) 70%);
+}
+
+/* Icon Container — now holds institution logos */
+.icon-container {
+    width: 140px;
+    height: 80px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    padding: 10px 14px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.brand-btn:hover .icon-container {
+    transform: scale(1.05);
+}
+
+.upc .icon-container {
+    background-color: var(--upc-primary);
+    box-shadow: 0 6px 16px -2px rgba(227, 0, 15, 0.3);
+}
+
+.upn .icon-container {
+    background-color: var(--upn-primary);
+    box-shadow: 0 6px 16px -2px rgba(255, 183, 0, 0.3);
+}
+
+.cibertec .icon-container {
+    background-color: var(--cibertec-primary);
+    box-shadow: 0 6px 16px -2px rgba(0, 65, 101, 0.25);
+}
+
+/* Brand logo image */
+.brand-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    user-select: none;
+    pointer-events: none;
+}
+
+.icon {
+    font-size: 36px;
+    /* text-4xl */
+}
+
+/* Brand Name Typography */
+.brand-name {
+    font-size: 18px;
+    /* headline-sm */
+    line-height: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    /* mb-2 */
+    position: relative;
+    z-index: 2;
+}
+
+.cibertec .brand-name {
+    color: var(--cibertec-primary);
+}
+
+.upn .brand-name {
+    color: var(--upn-dark);
+}
+
+.upc .brand-name {
+    color: var(--upc-primary);
+}
+
+/* Brand Description */
+.brand-description {
+    font-size: 13px;
+    /* body-sm */
+    line-height: 18px;
+    font-weight: 400;
+    color: var(--secondary-color);
+    margin-bottom: 24px;
+    /* mb-6 */
+    position: relative;
+    z-index: 2;
+    flex-grow: 1;
+}
+
+/* Action Access Button Inside Cards */
+.action-btn {
+    margin-top: auto;
+    width: 100%;
+    padding: 12px 0;
+    /* py-3 */
+    border-radius: 8px;
+    /* rounded-lg */
+    font-size: 12px;
+    /* text-label-md */
+    line-height: 16px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cibertec .action-btn {
+    background-color: var(--cibertec-primary);
+    color: #ffffff;
+}
+
+.brand-btn.cibertec:hover .action-btn {
+    background-color: var(--cibertec-hover);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 65, 101, 0.4);
+}
+
+.upn .action-btn {
+    background-color: var(--upn-primary);
+    color: #ffffff;
+}
+
+.brand-btn.upn:hover .action-btn {
+    background-color: var(--upn-hover);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(255, 183, 0, 0.45);
+}
+
+.upc .action-btn {
+    background-color: var(--upc-primary);
+    color: #ffffff;
+}
+
+.brand-btn.upc:hover .action-btn {
+    background-color: var(--upc-hover);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(227, 0, 15, 0.4);
+}
+
+/* Footer Quick Stats */
+.footer-stats {
+    margin-top: 64px;
+    /* mt-16 */
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    /* gap-12 */
+    opacity: 0.6;
+    animation: fadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+@media (max-width: 768px) {
+    .footer-stats {
+        margin-top: 32px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 16px 24px;
+    }
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* gap-2 */
+}
+
+.stat-icon {
+    font-size: 16px;
+    /* text-sm */
+}
+
+.stat-text {
+    font-size: 12px;
+    /* text-label-md */
+    line-height: 16px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile responsive layout optimizations */
+@media (max-width: 768px) {
+    .main-canvas {
+        padding: 24px 16px;
+    }
+
+    .title {
+        font-size: 32px;
+        line-height: 38px;
+        min-height: 76px;
+        margin-bottom: 8px;
+    }
+
+    .subtitle {
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+    .mb-12 {
+        margin-bottom: 24px;
+    }
+
+    .brand-grid {
+        gap: 16px;
+        margin-bottom: 32px;
+        padding: 0;
+    }
+
+    .brand-btn {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-rows: auto auto;
+        grid-template-areas: 
+            "icon name action"
+            "icon desc action";
+        align-items: center;
+        text-align: left;
+        padding: 16px;
+        gap: 2px 16px;
+        border-radius: 12px;
+        height: auto;
+    }
+
+    .icon-container {
+        grid-area: icon;
+        width: 72px;
+        height: 48px;
+        margin-bottom: 0;
+        padding: 6px 8px;
+        border-radius: 8px;
+    }
+
+    .brand-name {
+        grid-area: name;
+        margin-bottom: 0;
+        font-size: 16px;
+        line-height: 20px;
+        align-self: end;
+    }
+
+    .brand-description {
+        grid-area: desc;
+        margin-bottom: 0;
+        font-size: 12px;
+        line-height: 16px;
+        align-self: start;
+        text-align: left;
+    }
+
+    .action-btn {
+        grid-area: action;
+        margin-top: 0;
+        width: auto;
+        padding: 8px 16px;
+        font-size: 12px;
+        border-radius: 6px;
+    }
+}

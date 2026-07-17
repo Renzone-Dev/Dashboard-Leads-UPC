@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Hub - Home Centralizado</title>
+    <meta name="description"
+        content="Selecciona una de nuestras instituciones para acceder a las herramientas de análisis y gestión de campañas.">
+    <!-- Google Fonts: Inter & Material Symbols Outlined -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block"
+        rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/ico-laureate.ico">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="bg-background font-body-md text-on-background overflow-hidden">
+
+    <!-- Animated Pattern Layer -->
+    <div class="absolute-layer pointer-events-none" aria-hidden="true">
+        <div class="animated-logo-bg"></div>
+    </div>
+
+    <!-- Background Atmospheric Glow -->
+    <div class="atmospheric-glow pointer-events-none" aria-hidden="true"></div>
+
+    <!-- Main Canvas / Centered Container -->
+    <main class="main-canvas">
+        <div class="content-wrapper">
+            <!-- Header Section -->
+            <header class="mb-12">
+                <h1 class="title" id="main-title" aria-label="Bienvenido a Marketing Hub"></h1>
+                <p class="subtitle">
+                    Selecciona una de nuestras instituciones para acceder a las herramientas de análisis y gestión de
+                    campañas.
+                </p>
+            </header>
+
+            <!-- Brand Buttons Grid — Orden: UPC, UPN, Cibertec -->
+            <section class="brand-grid" aria-label="Instituciones">
+
+                <!-- UPC -->
+                <button class="brand-btn group upc" data-brand="upc" aria-label="Acceder a UPC">
+                    <div class="card-glow"></div>
+                    <div class="icon-container">
+                        <img src="assets/logo-upc.png" alt="UPC" class="brand-logo">
+                    </div>
+                    <span class="brand-name">UPC</span>
+                    <p class="brand-description">Todo lo que necesitas, en un solo lugar.</p>
+                    <div class="action-btn">
+                        Acceder
+                    </div>
+                </button>
+
+                <!-- UPN -->
+                <button class="brand-btn group upn" data-brand="upn" aria-label="Acceder a UPN">
+                    <div class="card-glow"></div>
+                    <div class="icon-container">
+                        <img src="assets/logo-upn.png" alt="UPN" class="brand-logo">
+                    </div>
+                    <span class="brand-name">UPN</span>
+                    <p class="brand-description">Analiza indicadores y métricas</p>
+                    <div class="action-btn">
+                        Acceder
+                    </div>
+                </button>
+
+                <!-- Cibertec -->
+                <button class="brand-btn group cibertec" data-brand="cibertec" aria-label="Acceder a Cibertec">
+                    <div class="card-glow"></div>
+                    <div class="icon-container">
+                        <img src="assets/logo-cibertec.png" alt="Cibertec" class="brand-logo">
+                    </div>
+                    <span class="brand-name">CIBERTEC</span>
+                    <p class="brand-description">Monitorea el seguimiento comercial.</p>
+                    <div class="action-btn">
+                        Acceder
+                    </div>
+                </button>
+
+            </section>
+
+            <!-- Quick Stats Footer Overlay -->
+            <footer class="footer-stats">
+                <div class="stat-item">
+                    <span class="material-symbols-outlined stat-icon">lock</span>
+                    <span class="stat-text">Acceso Seguro</span>
+                </div>
+                <div class="stat-item">
+                    <span class="material-symbols-outlined stat-icon">bolt</span>
+                    <span class="stat-text">Real-time Data</span>
+                </div>
+                <div class="stat-item">
+                    <span class="material-symbols-outlined stat-icon">cloud_done</span>
+                    <span class="stat-text">Cloud</span>
+                </div>
+            </footer>
+        </div>
+    </main>
+
+    <!-- Script file -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>
