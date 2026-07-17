@@ -1,4 +1,4 @@
-El ecosistema del proyecto Marketing Hub (excluyendo la carpeta de versiones) está diseñado como una plataforma frontend unificada para el control, auditoría e inteligencia operacional del flujo de admisión comercial de las tres instituciones de Laureate Perú: UPC, UPN y CIBERTEC.
+El ecosistema del proyecto Marketing Hub: está diseñado como una plataforma frontend unificada para el control, auditoría e inteligencia operacional del flujo de admisión comercial de las tres instituciones de Laureate Perú: UPC, UPN y CIBERTEC.
 
 1. Portal de Acceso Principal: Home/
 Es el punto de entrada centralizado del proyecto. Consiste en una pantalla estática premium (HTML/CSS/JS vanilla) que presenta las marcas y redirige al usuario a sus respectivos módulos.
