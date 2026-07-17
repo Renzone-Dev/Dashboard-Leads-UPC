@@ -5,6 +5,7 @@ Es el punto de entrada centralizado del proyecto. Consiste en una pantalla está
 
 Efectos visuales: Animación de máquina de escribir (typewriter) dinámica en el título, fondo animado deslizante y un efecto interactivo de seguimiento de cursor (glow tracker) en 3D sobre las tarjetas.
 Diseño Responsivo: Totalmente adaptado para móviles (tarjetas horizontales compactas usando CSS Grid, scroll habilitado y fuentes escaladas).
+
 2. Estructura de Módulos por Institución
 Cada institución en el ecosistema está configurada para alojar dos herramientas analíticas principales de auditoría:
 
